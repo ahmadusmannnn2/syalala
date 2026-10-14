@@ -1,19 +1,40 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { UtensilsCrossed, Home, UtensilsCrossed as MenuIcon, Gift, ArrowLeft } from "lucide-react";
+import { UtensilsCrossed, Home, Sparkles, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const bottomNav = [
+interface NavbarProps {
+  logoUrl?: string | null;
+  restaurantName?: string;
+}
+
+const navItems = [
   { href: "/", label: "Home", icon: Home, exact: true },
-  { href: "/menu", label: "Menu", icon: MenuIcon },
-  { href: "/promo", label: "Promo", icon: Gift },
+  { href: "/menu", label: "Menu", icon: UtensilsCrossed },
+  { href: "/promo", label: "Promo", icon: Sparkles },
 ];
 
-export function Navbar() {
+export function Navbar({
+  logoUrl = null,
+  restaurantName = "Syalala",
+}: NavbarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Threshold saat logo hero mulai lewat dari viewport
+      setScrolled(window.scrollY > 55);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const isActive = (href: string, exact?: boolean) => {
     if (exact) return pathname === href;
@@ -24,85 +45,98 @@ export function Navbar() {
 
   return (
     <>
-      {/* Top Navbar */}
-      <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
-        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            {!isHome && (
-              <button
-                type="button"
-                onClick={() => router.back()}
-                className="p-1.5 -ml-1 text-gray-600 hover:text-[#e6203b] hover:bg-gray-100 rounded-lg transition-colors active:scale-95 sm:hidden"
-                aria-label="Kembali"
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </button>
+      {/* Top Navbar Header */}
+      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-all">
+        <div className="relative max-w-2xl mx-auto px-4 h-14 flex items-center">
+          {/* Back button (hanya tampil di halaman non-home) */}
+          {!isHome && (
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="mr-2 p-1.5 text-gray-600 hover:text-[#e6203b] hover:bg-gray-100 rounded-xl transition-all active:scale-95"
+              aria-label="Kembali"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+          )}
+
+          {/* Interactive Logo & Brand Text Container */}
+          <Link
+            href="/"
+            className={cn(
+              "flex items-center gap-2.5 transition-all duration-300 ease-out select-none",
+              isHome
+                ? scrolled
+                  ? "translate-x-0"
+                  : "absolute left-1/2 -translate-x-1/2"
+                : "translate-x-0"
             )}
-            <Link href="/" className="flex items-center gap-2 group">
-              <div className="w-8 h-8 rounded-lg bg-[#e6203b] flex items-center justify-center shadow-sm shadow-[#e6203b]/30 group-active:scale-95 transition-transform">
-                <UtensilsCrossed className="h-4 w-4 text-white" />
-              </div>
-              <span className="font-bold text-[#e6203b] text-lg tracking-tight">Syalala</span>
-            </Link>
-          </div>
+          >
+            {/* Logo di Navbar:
+                - Di halaman Home saat di paling atas: Tersembunyi (karena logo besar ada di hero)
+                - Saat di-scroll atau di halaman lain: Logo muncul halus di sebelah kiri tulisan "Syalala" */}
+            <div
+              className={cn(
+                "transition-all duration-300 overflow-hidden flex-shrink-0 rounded-xl flex items-center justify-center",
+                isHome && !scrolled
+                  ? "w-0 h-0 opacity-0 scale-50 pointer-events-none"
+                  : "w-8 h-8 opacity-100 scale-100 shadow-sm border border-gray-100"
+              )}
+            >
+              {logoUrl ? (
+                <img
+                  src={logoUrl}
+                  alt={restaurantName}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-[#e6203b] flex items-center justify-center text-white">
+                  <UtensilsCrossed className="h-4 w-4 stroke-[2.5]" />
+                </div>
+              )}
+            </div>
 
-          {/* Navigation Links */}
-          <div className="flex items-center gap-1 sm:gap-2">
-            <Link
-              href="/"
+            {/* Tulisan Brand "Syalala" */}
+            <span
               className={cn(
-                "hidden sm:inline-flex px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors",
-                isActive("/", true)
-                  ? "text-[#e6203b] bg-red-50"
-                  : "text-gray-600 hover:text-[#e6203b] hover:bg-gray-50"
+                "font-black tracking-tight transition-all duration-300",
+                isHome && !scrolled
+                  ? "text-xl text-[#e6203b]"
+                  : "text-lg text-gray-900 hover:text-[#e6203b]"
               )}
             >
-              Home
-            </Link>
-            <Link
-              href="/menu"
-              className={cn(
-                "px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors",
-                isActive("/menu")
-                  ? "text-[#e6203b] bg-red-50"
-                  : "text-gray-600 hover:text-[#e6203b] hover:bg-gray-50"
-              )}
-            >
-              Menu
-            </Link>
-            <Link
-              href="/promo"
-              className={cn(
-                "px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors",
-                isActive("/promo")
-                  ? "text-[#e6203b] bg-red-50"
-                  : "text-gray-600 hover:text-[#e6203b] hover:bg-gray-50"
-              )}
-            >
-              Promo
-            </Link>
-          </div>
+              {restaurantName}
+            </span>
+          </Link>
         </div>
-      </nav>
+      </header>
 
-      {/* Mobile Bottom Navigation */}
-      <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
-        <div className="flex items-center justify-around h-16 max-w-2xl mx-auto px-4">
-          {bottomNav.map((item) => {
+      {/* Floating Bottom Pill Navigation (iOS 27 Style — Berlaku untuk Semua Perangkat) */}
+      <nav
+        aria-label="Navigasi Utama"
+        className="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 pointer-events-auto select-none"
+      >
+        <div className="flex items-center gap-1 bg-white/85 backdrop-blur-2xl border border-white/60 shadow-[0_12px_40px_rgba(0,0,0,0.14)] rounded-full p-1.5 transition-all duration-300 hover:shadow-[0_16px_48px_rgba(0,0,0,0.2)]">
+          {navItems.map((item) => {
             const active = isActive(item.href, item.exact);
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-1 flex-1 py-1 rounded-xl transition-all duration-150 active:scale-95",
-                  active ? "text-[#e6203b]" : "text-gray-400 hover:text-gray-600"
+                  "flex items-center gap-1.5 px-4 py-2 rounded-full text-xs transition-all duration-200 active:scale-95",
+                  active
+                    ? "bg-[#e6203b] text-white shadow-md shadow-[#e6203b]/30 font-bold"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-black/5 font-medium"
                 )}
               >
-                <item.icon className={cn("h-5 w-5 transition-transform", active ? "scale-110 stroke-[2.5]" : "stroke-[1.75]")} />
-                <span className={cn("text-[11px]", active ? "font-bold text-[#e6203b]" : "font-medium")}>
-                  {item.label}
-                </span>
+                <item.icon
+                  className={cn(
+                    "h-4 w-4 transition-transform",
+                    active ? "scale-110 stroke-[2.5]" : "stroke-[1.75]"
+                  )}
+                />
+                <span>{item.label}</span>
               </Link>
             );
           })}

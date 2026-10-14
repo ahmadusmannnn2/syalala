@@ -13,6 +13,7 @@ export interface RestaurantSettings {
   google_maps_link: string | null;
   instagram_link: string | null;
   banner_image_url: string | null;
+  logo_url: string | null;
   created_at: string;
   updated_at: string;
 }

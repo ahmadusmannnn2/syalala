@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Badge } from "@/components/ui/Badge";
 import { formatDate, formatRupiah, formatValidDays, isPromotionCurrentlyValid } from "@/lib/utils";
-import { Gift, Clock, Calendar, CreditCard } from "lucide-react";
+import { Gift, Clock, Calendar, CreditCard, Sparkles, ArrowLeft } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Promo",
@@ -33,9 +33,13 @@ export default async function PromoPage() {
           href="/"
           className="absolute left-4 top-4 inline-flex items-center gap-1.5 text-xs font-semibold text-white/90 hover:text-white bg-white/15 hover:bg-white/25 px-3 py-1.5 rounded-full transition-all active:scale-95"
         >
-          ← Home
+          <ArrowLeft className="h-3.5 w-3.5" />
+          <span>Home</span>
         </Link>
-        <h1 className="text-2xl font-black mb-1">🎉 Promo Syalala</h1>
+        <div className="inline-flex items-center gap-2 mb-1">
+          <Sparkles className="h-6 w-6 text-white" />
+          <h1 className="text-2xl font-black">Promo Syalala</h1>
+        </div>
         <p className="text-sm text-white/80">
           Hemat lebih banyak dengan promo spesial kami!
         </p>

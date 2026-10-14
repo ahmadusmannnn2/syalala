@@ -21,6 +21,7 @@ CREATE TABLE restaurant_settings (
     google_maps_link TEXT,
     instagram_link TEXT,
     banner_image_url TEXT,
+    logo_url TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL
 );

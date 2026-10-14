@@ -1,14 +1,13 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { updateRestaurantSettings } from "@/app/actions/home";
-import { uploadBannerImage } from "@/app/actions/upload";
+import { uploadBannerImage, uploadLogoImage } from "@/app/actions/upload";
 import { Button } from "@/components/ui/Button";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { RestaurantSettings } from "@/types";
-import { Upload, Save } from "lucide-react";
+import { Upload, Save, X, UtensilsCrossed } from "lucide-react";
 
 export default function AdminHomePage() {
   const [settings, setSettings] = useState<RestaurantSettings | null>(null);
@@ -16,8 +15,11 @@ export default function AdminHomePage() {
   const [saving, setSaving] = useState(false);
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [bannerPreview, setBannerPreview] = useState<string | null>(null);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
+  const bannerFileRef = useRef<HTMLInputElement>(null);
+  const logoFileRef = useRef<HTMLInputElement>(null);
 
   const supabase = createClient();
 
@@ -25,9 +27,10 @@ export default function AdminHomePage() {
     supabase.from("restaurant_settings").select("*").single().then(({ data }) => {
       setSettings(data);
       setBannerPreview(data?.banner_image_url ?? null);
+      setLogoPreview(data?.logo_url ?? null);
       setLoading(false);
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleBannerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,6 +38,13 @@ export default function AdminHomePage() {
     if (!file) return;
     setBannerFile(file);
     setBannerPreview(URL.createObjectURL(file));
+  };
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setLogoFile(file);
+    setLogoPreview(URL.createObjectURL(file));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,6 +59,16 @@ export default function AdminHomePage() {
         fd.append("file", bannerFile);
         bannerUrl = await uploadBannerImage(fd);
       }
+
+      let logoUrl = settings.logo_url;
+      if (logoFile) {
+        const fd = new FormData();
+        fd.append("file", logoFile);
+        logoUrl = await uploadLogoImage(fd);
+      } else if (logoPreview === null) {
+        logoUrl = null;
+      }
+
       await updateRestaurantSettings(settings.id, {
         name: settings.name,
         tagline: settings.tagline,
@@ -61,11 +81,12 @@ export default function AdminHomePage() {
         google_maps_link: settings.google_maps_link,
         instagram_link: settings.instagram_link,
         banner_image_url: bannerUrl,
+        logo_url: logoUrl,
       });
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err: unknown) {
-      alert(`Error: ${err instanceof Error ? err.message : "Unknown"}`);
+      alert(`Error: ${err instanceof Error ? err.message : "Gagal menyimpan perubahan"}`);
     } finally {
       setSaving(false);
     }
@@ -92,14 +113,71 @@ export default function AdminHomePage() {
   if (!settings) return <p className="text-center text-gray-500">Pengaturan tidak ditemukan.</p>;
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto pb-10">
       {success && (
         <div className="mb-4 bg-green-50 border border-green-200 text-green-700 rounded-2xl p-4 text-sm font-medium">
-          ✅ Perubahan berhasil disimpan!
+          Perubahan berhasil disimpan!
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Logo Restoran */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4">
+          <div>
+            <h3 className="font-bold text-gray-900">Logo Restoran</h3>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Logo akan tampil di bagian hero atas dan berpindah ke navbar saat di-scroll.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div
+              onClick={() => logoFileRef.current?.click()}
+              className="relative w-24 h-24 rounded-2xl border-2 border-dashed border-gray-200 hover:border-[#e6203b]/50 transition-colors cursor-pointer overflow-hidden bg-gray-50 flex items-center justify-center flex-shrink-0"
+            >
+              {logoPreview ? (
+                <img src={logoPreview} alt="Logo" className="w-full h-full object-cover" />
+              ) : (
+                <div className="flex flex-col items-center justify-center gap-1 text-gray-400">
+                  <UtensilsCrossed className="h-6 w-6" />
+                  <span className="text-[10px]">Pilih Logo</span>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <button
+                type="button"
+                onClick={() => logoFileRef.current?.click()}
+                className="px-4 py-2 rounded-xl text-xs font-semibold bg-gray-100 hover:bg-gray-200 text-gray-800 transition-colors flex items-center gap-1.5"
+              >
+                <Upload className="h-3.5 w-3.5" /> Upload Logo Baru
+              </button>
+              {logoPreview && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLogoFile(null);
+                    setLogoPreview(null);
+                    setSettings((s) => (s ? { ...s, logo_url: null } : s));
+                  }}
+                  className="block text-xs text-red-500 hover:underline"
+                >
+                  Hapus Logo (Gunakan Icon Default)
+                </button>
+              )}
+              <p className="text-[11px] text-gray-400">Format: PNG, JPG, WEBP transparan disarankan.</p>
+            </div>
+            <input
+              ref={logoFileRef}
+              type="file"
+              accept="image/*"
+              onChange={handleLogoChange}
+              className="hidden"
+            />
+          </div>
+        </div>
+
         {/* Identity */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4">
           <h3 className="font-bold text-gray-900">Identitas Restoran</h3>
@@ -110,7 +188,7 @@ export default function AdminHomePage() {
             <textarea
               rows={2}
               value={settings.hero_text ?? ""}
-              onChange={(e) => setSettings((s) => s ? { ...s, hero_text: e.target.value } : s)}
+              onChange={(e) => setSettings((s) => (s ? { ...s, hero_text: e.target.value } : s))}
               className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#e6203b]/30 focus:border-[#e6203b] resize-none"
             />
           </div>
@@ -133,7 +211,7 @@ export default function AdminHomePage() {
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4">
           <h3 className="font-bold text-gray-900">Link Sosial & Kontak</h3>
           {field("Link WhatsApp", "whatsapp_link", "url", "https://wa.me/628xxx")}
-          {field("Link Google Maps", "google_maps_link", "url", "https://maps.google.com/...")}
+          {field("Link Google Maps (Lokasi)", "google_maps_link", "url", "https://maps.google.com/...")}
           {field("Link Instagram", "instagram_link", "url", "https://instagram.com/syalala")}
         </div>
 
@@ -141,7 +219,7 @@ export default function AdminHomePage() {
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4">
           <h3 className="font-bold text-gray-900">Banner Hero</h3>
           <div
-            onClick={() => fileRef.current?.click()}
+            onClick={() => bannerFileRef.current?.click()}
             className="relative cursor-pointer rounded-2xl border-2 border-dashed border-gray-200 hover:border-[#e6203b]/50 transition-colors overflow-hidden"
             style={{ height: 180 }}
           >
@@ -154,7 +232,13 @@ export default function AdminHomePage() {
               </div>
             )}
           </div>
-          <input ref={fileRef} type="file" accept="image/*" onChange={handleBannerChange} className="hidden" />
+          <input
+            ref={bannerFileRef}
+            type="file"
+            accept="image/*"
+            onChange={handleBannerChange}
+            className="hidden"
+          />
         </div>
 
         <Button type="submit" size="lg" className="w-full" isLoading={saving}>

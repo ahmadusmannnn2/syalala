@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Gift } from "lucide-react";
+import { ArrowRight, Gift, Sparkles } from "lucide-react";
 import { Promotion } from "@/types";
 import { formatDate, formatValidDays } from "@/lib/utils";
 
@@ -14,8 +14,10 @@ export function PromoSection({ promos }: PromoSectionProps) {
     <section className="max-w-2xl mx-auto px-4 py-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <span className="text-xl">🎉</span>
-          <h2 className="text-lg font-bold text-gray-900">Promo Aktif</h2>
+          <div className="w-7 h-7 rounded-lg bg-red-100 text-[#e6203b] flex items-center justify-center">
+            <Sparkles className="h-4 w-4" />
+          </div>
+          <h2 className="text-lg font-bold text-gray-900 tracking-tight">Promo Aktif</h2>
         </div>
         <Link
           href="/promo"

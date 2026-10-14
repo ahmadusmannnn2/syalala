@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Home } from "lucide-react";
+import { Home, UtensilsCrossed } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import MenuClient from "./MenuClient";
 
@@ -34,17 +34,22 @@ export default async function MenuPage() {
       {/* Header */}
       <div className="bg-white border-b border-gray-100 px-4 py-3.5 max-w-2xl mx-auto flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-black text-gray-900 tracking-tight">🍜 Menu Kami</h1>
-          <p className="text-xs text-gray-500 mt-0.5">
-            {items.length} menu lezat siap dipesan
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-red-100 text-[#e6203b] flex items-center justify-center">
+              <UtensilsCrossed className="h-4 w-4 stroke-[2.5]" />
+            </div>
+            <h1 className="text-xl font-black text-gray-900 tracking-tight">Daftar Menu</h1>
+          </div>
+          <p className="text-xs text-gray-500 mt-1">
+            {items.length} menu lezat siap dinikmati
           </p>
         </div>
         <Link
           href="/"
-          className="inline-flex items-center gap-1 text-xs font-semibold text-gray-600 hover:text-[#e6203b] bg-gray-100 hover:bg-red-50 px-3 py-1.5 rounded-full transition-colors active:scale-95"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-[#e6203b] bg-gray-100 hover:bg-red-50 px-3 py-1.5 rounded-full transition-colors active:scale-95"
         >
           <Home className="h-3.5 w-3.5" />
-          Home
+          <span>Home</span>
         </Link>
       </div>
 

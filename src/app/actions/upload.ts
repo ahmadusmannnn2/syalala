@@ -94,6 +94,26 @@ export async function uploadPromoImage(formData: FormData): Promise<string> {
   return data.publicUrl;
 }
 
+export async function uploadLogoImage(formData: FormData): Promise<string> {
+  const file = formData.get("file") as File;
+  if (!file) throw new Error("No file provided");
+
+  const supabase = await createAdminClient();
+  const fileName = createImageFileName("logo", file);
+
+  const { error } = await supabase.storage
+    .from("menu-images")
+    .upload(fileName, file, {
+      contentType: file.type,
+      upsert: false,
+    });
+
+  if (error) throw new Error(error.message);
+
+  const { data } = supabase.storage.from("menu-images").getPublicUrl(fileName);
+  return data.publicUrl;
+}
+
 export async function deleteStorageFile(url: string) {
   const supabase = await createAdminClient();
   const parts = url.split("/menu-images/");

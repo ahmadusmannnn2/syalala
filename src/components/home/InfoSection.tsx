@@ -1,4 +1,4 @@
-import { Package, Layers, Info } from "lucide-react";
+import { Package, Layers, Info, AlertCircle } from "lucide-react";
 import { RestaurantSettings } from "@/types";
 import { formatRupiah } from "@/lib/utils";
 
@@ -34,7 +34,10 @@ export function InfoSection({ settings }: InfoSectionProps) {
             <span className="font-semibold text-gray-800">+{formatRupiah(jumbo)}</span>
           </div>
           <div className="h-px bg-orange-200 my-1" />
-          <p className="text-xs text-orange-600 font-medium text-center">⚠️ {taxStatus}</p>
+          <p className="text-xs text-orange-700 font-medium text-center flex items-center justify-center gap-1.5">
+            <AlertCircle className="h-3.5 w-3.5 text-orange-600" />
+            <span>{taxStatus}</span>
+          </p>
         </div>
       </div>
     </section>

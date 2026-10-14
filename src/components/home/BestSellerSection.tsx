@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Star, ChefHat } from "lucide-react";
 import { MenuItem } from "@/types";
 import { MenuCard } from "@/components/menu/MenuCard";
 
@@ -20,12 +20,14 @@ export function BestSellerSection({ items }: BestSellerSectionProps) {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <span className="text-xl">⭐</span>
-              <h2 className="text-lg font-bold text-gray-900">Best Seller</h2>
+              <div className="w-7 h-7 rounded-lg bg-red-100 text-[#e6203b] flex items-center justify-center">
+                <Star className="h-4 w-4 fill-[#e6203b]" />
+              </div>
+              <h2 className="text-lg font-bold text-gray-900 tracking-tight">Best Seller</h2>
             </div>
             <Link
               href="/menu"
-              className="flex items-center gap-1 text-sm font-semibold text-[#e6203b] hover:underline"
+              className="flex items-center gap-1 text-xs font-semibold text-[#e6203b] hover:underline"
             >
               Lihat Menu <ArrowRight className="h-3.5 w-3.5" />
             </Link>
@@ -43,8 +45,10 @@ export function BestSellerSection({ items }: BestSellerSectionProps) {
         <div>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <span className="text-xl">👨‍🍳</span>
-              <h2 className="text-lg font-bold text-gray-900">Chef&apos;s Choice</h2>
+              <div className="w-7 h-7 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center">
+                <ChefHat className="h-4 w-4" />
+              </div>
+              <h2 className="text-lg font-bold text-gray-900 tracking-tight">Chef&apos;s Choice</h2>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
