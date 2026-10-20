@@ -297,15 +297,17 @@ export default function AdminPromosPage() {
               {/* Image upload & Interactive Mobile-like Gallery Cropper */}
               <ImageUploadField
                 label="Foto / Banner Promo"
-                helperText="Format: JPG, PNG, WEBP (Otomatis dikompres & dipotong rasio 16:9)"
+                helperText="Format: JPG, PNG, WEBP (Bisa rasio foto asli penuh atau dipotong)"
                 previewUrl={imagePreview}
-                aspect={16 / 9}
+                aspect={0}
                 aspectOptions={[
-                  { label: "16:9 (Lebar Banner)", value: 16 / 9 },
+                  { label: "Foto Asli (Full)", value: 0 },
+                  { label: "16:9 (Lebar)", value: 16 / 9 },
                   { label: "4:3 (Standar)", value: 4 / 3 },
                   { label: "1:1 (Persegi)", value: 1 },
                 ]}
-                heightClass="h-44"
+                heightClass="h-48"
+                fitMode="contain"
                 onImageChange={(file, previewUrl) => {
                   setImageFile(file);
                   setImagePreview(previewUrl);

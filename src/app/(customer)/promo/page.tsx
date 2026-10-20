@@ -55,12 +55,13 @@ export default async function PromoPage() {
                 key={promo.id}
                 className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 transition-all hover:shadow-md"
               >
-                {/* Promo Image (Klik untuk preview foto ukuran penuh) */}
+                {/* Promo Image (Klik untuk preview foto ukuran penuh, rasio asli tanpa kepotong) */}
                 {promo.image_url && (
                   <ImageZoom
                     src={promo.image_url}
                     alt={promo.name}
-                    className="w-full h-48 sm:h-60"
+                    fitMode="natural"
+                    className="w-full"
                   />
                 )}
 

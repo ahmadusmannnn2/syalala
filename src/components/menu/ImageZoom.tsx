@@ -7,13 +7,14 @@ interface ImageZoomProps {
   src: string;
   alt: string;
   className?: string;
-  aspectRatio?: string;
+  fitMode?: "cover" | "contain" | "natural";
 }
 
 export function ImageZoom({
   src,
   alt,
-  className = "w-full h-72",
+  className,
+  fitMode = "cover",
 }: ImageZoomProps) {
   const [open, setOpen] = useState(false);
 
@@ -33,21 +34,29 @@ export function ImageZoom({
     };
   }, [open]);
 
+  const defaultWrapperClass =
+    fitMode === "natural"
+      ? "w-full"
+      : "w-full h-72";
+
+  const imgClass =
+    fitMode === "natural"
+      ? "w-full h-auto block group-hover:scale-[1.02] transition-transform duration-300"
+      : fitMode === "contain"
+      ? "w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+      : "w-full h-full object-cover group-hover:scale-105 transition-transform duration-300";
+
   return (
     <>
       {/* Thumbnail with visible zoom hint */}
       <div
-        className={`relative ${className} bg-gradient-to-br from-[#e6203b]/10 to-red-50/40 cursor-zoom-in group overflow-hidden select-none`}
+        className={`relative ${className || defaultWrapperClass} bg-neutral-900/5 cursor-zoom-in group overflow-hidden select-none`}
         onClick={() => setOpen(true)}
         role="button"
         tabIndex={0}
         aria-label={`Lihat foto ${alt} ukuran penuh`}
       >
-        <img
-          src={src}
-          alt={alt}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-        />
+        <img src={src} alt={alt} className={imgClass} />
 
         {/* Floating Zoom Badge */}
         <div className="absolute bottom-3 right-3 bg-black/65 backdrop-blur-md rounded-full px-3 py-1.5 text-white flex items-center gap-1.5 text-xs font-semibold shadow-lg">

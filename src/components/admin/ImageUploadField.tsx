@@ -13,6 +13,7 @@ export interface ImageUploadFieldProps {
   aspectOptions?: { label: string; value: number }[];
   cropShape?: "rect" | "round";
   heightClass?: string; // e.g. "h-40"
+  fitMode?: "cover" | "contain" | "natural";
   onImageChange: (file: File, previewUrl: string) => void;
   onImageRemove: () => void;
 }
@@ -25,6 +26,7 @@ export function ImageUploadField({
   aspectOptions,
   cropShape = "rect",
   heightClass = "h-44",
+  fitMode = "cover",
   onImageChange,
   onImageRemove,
 }: ImageUploadFieldProps) {
@@ -95,7 +97,11 @@ export function ImageUploadField({
             <img
               src={previewUrl}
               alt="Preview"
-              className={`w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 ${
+              className={`w-full h-full transition-transform duration-300 group-hover:scale-105 ${
+                fitMode === "contain" || fitMode === "natural"
+                  ? "object-contain bg-black/5"
+                  : "object-cover"
+              } ${
                 cropShape === "round" ? "rounded-full aspect-square mx-auto" : ""
               }`}
             />

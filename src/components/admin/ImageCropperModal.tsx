@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Cropper, { Area, Point } from "react-easy-crop";
 import { getCroppedImg } from "@/lib/cropImage";
 import {
@@ -41,8 +41,27 @@ export function ImageCropperModal({
   const [zoom, setZoom] = useState(1);
   const [rotation, setRotation] = useState(0);
   const [currentAspect, setCurrentAspect] = useState(aspect);
+  const [naturalAspect, setNaturalAspect] = useState<number | null>(null);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const [processing, setProcessing] = useState(false);
+
+  // Deteksi rasio aspek asli gambar
+  useEffect(() => {
+    if (imageSrc) {
+      const img = new Image();
+      img.onload = () => {
+        if (img.naturalWidth && img.naturalHeight) {
+          const ratio = img.naturalWidth / img.naturalHeight;
+          setNaturalAspect(ratio);
+          // Jika aspek awal adalah 0, set ke rasio asli foto
+          if (aspect === 0) {
+            setCurrentAspect(ratio);
+          }
+        }
+      };
+      img.src = imageSrc;
+    }
+  }, [imageSrc, aspect]);
 
   const onCropChange = (newCrop: Point) => {
     setCrop(newCrop);
@@ -139,17 +158,30 @@ export function ImageCropperModal({
       <div className="bg-neutral-900/95 text-white border-t border-white/10 p-3 sm:p-4 z-10 space-y-3">
         {/* Aspect Ratio Switcher (if options provided) */}
         {aspectOptions && aspectOptions.length > 1 && (
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center justify-center gap-2 flex-wrap">
             <span className="text-xs text-white/60 mr-1 flex items-center gap-1">
               <Sliders className="h-3 w-3" /> Rasio:
             </span>
+            {naturalAspect && (
+              <button
+                type="button"
+                onClick={() => setCurrentAspect(naturalAspect)}
+                className={`text-xs px-2.5 py-1 rounded-lg transition-all ${
+                  Math.abs(currentAspect - naturalAspect) < 0.01
+                    ? "bg-[#e6203b] text-white font-bold shadow-sm"
+                    : "bg-white/10 text-white/80 hover:bg-white/20"
+                }`}
+              >
+                Foto Asli (Full)
+              </button>
+            )}
             {aspectOptions.map((opt) => (
               <button
                 key={opt.label}
                 type="button"
-                onClick={() => setCurrentAspect(opt.value)}
+                onClick={() => setCurrentAspect(opt.value === 0 && naturalAspect ? naturalAspect : opt.value)}
                 className={`text-xs px-2.5 py-1 rounded-lg transition-all ${
-                  Math.abs(currentAspect - opt.value) < 0.01
+                  Math.abs(currentAspect - (opt.value === 0 && naturalAspect ? naturalAspect : opt.value)) < 0.01
                     ? "bg-[#e6203b] text-white font-bold shadow-sm"
                     : "bg-white/10 text-white/80 hover:bg-white/20"
                 }`}
