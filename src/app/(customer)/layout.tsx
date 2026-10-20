@@ -14,12 +14,12 @@ export default async function CustomerLayout({
     .single();
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen bg-gray-50">
       <Navbar
         logoUrl={settings?.logo_url ?? null}
         restaurantName={settings?.name ?? "Syalala"}
       />
-      <main className="min-h-screen">{children}</main>
+      <main className="flex-1 w-full">{children}</main>
       <Footer
         logoUrl={settings?.logo_url ?? null}
         restaurantName={settings?.name ?? "Syalala"}
@@ -29,6 +29,6 @@ export default async function CustomerLayout({
         tiktokLink={settings?.tiktok_link ?? null}
         mapsLink={settings?.google_maps_link ?? null}
       />
-    </>
+    </div>
   );
 }

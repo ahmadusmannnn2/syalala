@@ -27,7 +27,7 @@ export default async function PromoPage() {
   const items = promos ?? [];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="w-full">
       {/* Header */}
       <div className="bg-gradient-to-br from-[#e6203b] via-[#c41833] to-[#8b0f22] text-white px-4 py-8 text-center relative shadow-sm">
         <div className="inline-flex items-center gap-2 mb-1">
@@ -39,7 +39,7 @@ export default async function PromoPage() {
         </p>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
+      <div className="max-w-2xl mx-auto px-4 pt-4 pb-4 space-y-4">
         {items.length === 0 ? (
           <EmptyState
             title="Belum ada promo aktif"

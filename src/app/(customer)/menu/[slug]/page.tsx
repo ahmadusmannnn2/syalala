@@ -73,7 +73,7 @@ export default async function MenuDetailPage({ params }: Props) {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-8">
+    <div className="w-full pb-4">
       <div className="max-w-2xl mx-auto">
         {/* Image / Lightbox */}
         <div className="relative w-full">
@@ -138,7 +138,7 @@ export default async function MenuDetailPage({ params }: Props) {
           ) : (
             <>
               {/* Price Box */}
-              <div className="bg-gradient-to-br from-red-50/60 to-orange-50/40 border border-red-100 rounded-2xl p-4">
+              <div className="bg-red-50/60 border border-red-100 rounded-2xl p-4">
                 <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Harga</span>
                 <p className="text-3xl font-black text-[#e6203b] tracking-tight mt-0.5">
                   {formatRupiah(item.price)}
@@ -148,13 +148,13 @@ export default async function MenuDetailPage({ params }: Props) {
 
               {/* Jumbo info */}
               {item.supports_jumbo && (
-                <div className="flex items-start gap-3 bg-orange-50 border border-orange-200/80 rounded-2xl p-4">
-                  <div className="p-2 bg-orange-100 text-orange-600 rounded-xl">
+                <div className="flex items-start gap-3 bg-red-50/50 border border-red-200/60 rounded-2xl p-4">
+                  <div className="p-2 bg-red-100 text-[#e6203b] rounded-xl">
                     <ShoppingBag className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-orange-900">Tersedia Ukuran Jumbo</p>
-                    <p className="text-xs text-orange-700 mt-0.5 leading-relaxed">
+                    <p className="text-sm font-bold text-gray-900">Tersedia Ukuran Jumbo</p>
+                    <p className="text-xs text-red-700 mt-0.5 leading-relaxed font-medium">
                       Bisa upgrade porsi jumbo ekstra kenyang hanya +{formatRupiah(jumboFee)}
                     </p>
                   </div>

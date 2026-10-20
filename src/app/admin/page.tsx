@@ -100,7 +100,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       {/* Info card */}
-      <div className="bg-gradient-to-r from-[#e6203b] to-orange-500 rounded-2xl p-5 text-white">
+      <div className="bg-gradient-to-r from-[#e6203b] via-[#c41833] to-[#8b0f22] rounded-2xl p-5 text-white shadow-sm">
         <h3 className="font-bold text-sm mb-1">💡 Tips Admin</h3>
         <p className="text-xs text-white/80 leading-relaxed">
           Update status menu (tersedia/habis) secara rutin agar customer selalu mendapat info akurat.

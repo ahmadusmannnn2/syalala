@@ -1,6 +1,7 @@
-import { UtensilsCrossed, MessageCircle, MapPin } from "lucide-react";
+import { UtensilsCrossed, MapPin } from "lucide-react";
 import { InstagramIcon } from "@/components/ui/InstagramIcon";
 import { TikTokIcon } from "@/components/ui/TikTokIcon";
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 
 interface FooterProps {
   logoUrl?: string | null;
@@ -82,7 +83,7 @@ export function Footer({
               className="w-9 h-9 rounded-full bg-white/15 hover:bg-white hover:text-[#25D366] text-white flex items-center justify-center transition-all duration-200 active:scale-95 shadow-sm border border-white/20"
               aria-label="WhatsApp"
             >
-              <MessageCircle className="h-4.5 w-4.5" />
+              <WhatsAppIcon className="h-4.5 w-4.5" />
             </a>
 
             <a

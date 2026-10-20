@@ -3,12 +3,12 @@ import Image from "next/image";
 import {
   ChevronRight,
   MapPin,
-  MessageCircle,
   UtensilsCrossed,
   Clock,
 } from "lucide-react";
 import { InstagramIcon } from "@/components/ui/InstagramIcon";
 import { TikTokIcon } from "@/components/ui/TikTokIcon";
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import { RestaurantSettings } from "@/types";
 
 interface HeroSectionProps {
@@ -91,7 +91,7 @@ export function HeroSection({ settings }: HeroSectionProps) {
               aria-label="WhatsApp"
               className="w-10 h-10 rounded-full bg-white/15 hover:bg-white hover:text-[#25D366] text-white flex items-center justify-center transition-all duration-200 active:scale-90 shadow-sm border border-white/20 backdrop-blur-sm"
             >
-              <MessageCircle className="h-5 w-5" />
+              <WhatsAppIcon className="h-5 w-5" />
             </a>
 
             <a

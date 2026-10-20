@@ -1,5 +1,6 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
+import { createClient } from "@/lib/supabase/server";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -9,33 +10,84 @@ const poppins = Poppins({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "Syalala — Mie Sosis Bakar Extra Pedas",
-    template: "%s | Syalala",
-  },
-  description: "Menu digital restoran Syalala. Mie sosis bakar extra pedas, sosis bakar, minuman boba dan cemilan.",
-  keywords: ["syalala", "mie sosis", "sosis bakar", "menu digital", "extra pedas"],
-  authors: [{ name: "Syalala" }],
-  openGraph: {
-    type: "website",
-    siteName: "Syalala",
-    title: "Syalala — Mie Sosis Bakar Extra Pedas",
-    description: "Menu digital restoran Syalala.",
-  },
-};
-
-export const viewport = {
+export const viewport: Viewport = {
   themeColor: "#e6203b",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
 };
 
-export default function RootLayout({
+export async function generateMetadata(): Promise<Metadata> {
+  let name = "Syalala";
+  let tagline = "Mie Sosis Bakar Extra Pedas";
+  let logoUrl = "/apple-touch-icon.png";
+
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("restaurant_settings")
+      .select("logo_url, name, tagline")
+      .single();
+
+    if (data?.name) name = data.name;
+    if (data?.tagline) tagline = data.tagline;
+    if (data?.logo_url) logoUrl = data.logo_url;
+  } catch {
+    // Fallback jika database belum ready
+  }
+
+  return {
+    metadataBase: new URL(
+      process.env.NEXT_PUBLIC_SITE_URL || "https://syalala.vercel.app"
+    ),
+    title: {
+      default: `${name} — ${tagline}`,
+      template: `%s | ${name}`,
+    },
+    description: `Menu digital restoran ${name}. ${tagline}`,
+    keywords: [name.toLowerCase(), "mie sosis", "sosis bakar", "menu digital", "kuliner", "extra pedas"],
+    authors: [{ name }],
+    icons: {
+      icon: [
+        { url: logoUrl, sizes: "any" },
+        { url: "/icon.png", sizes: "192x192", type: "image/png" },
+      ],
+      apple: [
+        { url: logoUrl, sizes: "180x180", type: "image/png" },
+        { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+      ],
+      shortcut: [logoUrl],
+    },
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: "black-translucent",
+      title: name,
+    },
+    openGraph: {
+      type: "website",
+      siteName: name,
+      title: `${name} — ${tagline}`,
+      description: `Menu digital restoran ${name}. ${tagline}`,
+      images: [
+        {
+          url: logoUrl,
+          alt: `${name} Logo`,
+        },
+      ],
+    },
+  };
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
     <html lang="id" className={poppins.variable}>
+      <head>
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+      </head>
       <body className="font-sans antialiased bg-gray-50 text-gray-900">
         {children}
       </body>

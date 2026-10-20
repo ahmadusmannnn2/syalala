@@ -12,7 +12,7 @@ export function InfoSection({ settings }: InfoSectionProps) {
   const taxStatus = settings?.tax_status ?? "Belum termasuk PPN 10%";
 
   return (
-    <section className="max-w-2xl mx-auto px-4 pb-8">
+    <section className="max-w-2xl mx-auto px-4 pb-3">
       <div className="bg-red-50/60 border border-red-100 rounded-2xl p-4 shadow-sm">
         <div className="flex items-center gap-2 mb-3">
           <Info className="h-4 w-4 text-[#e6203b]" />

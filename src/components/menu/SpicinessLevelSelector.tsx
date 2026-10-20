@@ -50,7 +50,7 @@ export function SpicinessLevelSelector({
   return (
     <div className="space-y-4">
       {/* Dynamic Price Display */}
-      <div className="bg-gradient-to-br from-red-50/70 via-orange-50/50 to-white border-2 border-[#e6203b]/20 rounded-2xl p-4 shadow-sm">
+      <div className="bg-gradient-to-br from-red-50/80 to-white border-2 border-[#e6203b]/20 rounded-2xl p-4 shadow-sm">
         <div className="flex items-center justify-between">
           <div>
             <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
@@ -67,7 +67,7 @@ export function SpicinessLevelSelector({
               Level {selectedLevel}
             </span>
             {isJumbo && (
-              <span className="block text-[11px] text-orange-600 font-semibold mt-1">
+              <span className="block text-[11px] text-[#e6203b] font-semibold mt-1">
                 + Porsi Jumbo
               </span>
             )}
@@ -83,7 +83,7 @@ export function SpicinessLevelSelector({
             </span>
           )}
           {currentJumboFee > 0 && (
-            <span className="text-orange-600 font-semibold">
+            <span className="text-[#e6203b] font-semibold">
               + Jumbo ({formatRupiah(currentJumboFee)})
             </span>
           )}
@@ -114,7 +114,7 @@ export function SpicinessLevelSelector({
         </div>
 
         {/* Mobile Info Note */}
-        <div className="sm:hidden bg-gradient-to-r from-red-50 to-orange-50 border border-red-100 rounded-xl px-3 py-2 flex items-start gap-2">
+        <div className="sm:hidden bg-red-50/80 border border-red-100 rounded-xl px-3 py-2 flex items-start gap-2">
           <Info className="h-3.5 w-3.5 text-[#e6203b] mt-0.5 flex-shrink-0" />
           <p className="text-[11px] text-gray-700 leading-tight">
             <span className="font-bold text-[#e6203b]">Aturan Tambahan:</span> Level 1-2 (+Rp 2.000), penambahan level setelah level 2 (+Rp 1.000 berkelipatan per level).
@@ -223,12 +223,12 @@ export function SpicinessLevelSelector({
             onClick={() => setIsJumbo(!isJumbo)}
             className={`p-3 rounded-xl border transition-all cursor-pointer select-none flex items-center justify-between ${
               isJumbo
-                ? "bg-orange-50 border-orange-300 shadow-sm"
+                ? "bg-red-50/70 border-red-300 shadow-sm"
                 : "bg-gray-50 border-gray-200/70 hover:bg-gray-100/70"
             }`}
           >
             <div className="flex items-center gap-2.5">
-              <div className={`p-1.5 rounded-lg ${isJumbo ? "bg-orange-200 text-orange-700" : "bg-gray-200 text-gray-600"}`}>
+              <div className={`p-1.5 rounded-lg ${isJumbo ? "bg-red-100 text-[#e6203b]" : "bg-gray-200 text-gray-600"}`}>
                 <ShoppingBag className="h-4 w-4" />
               </div>
               <div>
@@ -238,14 +238,14 @@ export function SpicinessLevelSelector({
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-orange-600">
+              <span className="text-xs font-bold text-[#e6203b]">
                 +{formatRupiah(jumboFee)}
               </span>
               {/* Checkbox indicator */}
               <div
                 className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${
                   isJumbo
-                    ? "bg-orange-500 border-orange-500 text-white"
+                    ? "bg-[#e6203b] border-[#e6203b] text-white"
                     : "border-gray-300 bg-white"
                 }`}
               >

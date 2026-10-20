@@ -29,7 +29,7 @@ export default async function HomePage() {
   const featuredItems = menuRes.data ?? [];
 
   return (
-    <div className="pb-4">
+    <div>
       <HeroSection settings={settings} />
       <PromoSection promos={promos} />
       <BestSellerSection items={featuredItems} />
