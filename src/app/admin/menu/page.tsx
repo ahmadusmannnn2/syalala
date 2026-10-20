@@ -216,7 +216,7 @@ export default function AdminMenuPage() {
                           {item.image_url ? (
                             <img src={item.image_url} alt={item.name} className="object-cover w-full h-full" />
                           ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-[#e6203b]/20 to-orange-100" />
+                            <div className="w-full h-full bg-gradient-to-br from-[#e6203b]/20 to-red-100" />
                           )}
                         </div>
                         <div>
@@ -291,12 +291,16 @@ export default function AdminMenuPage() {
 
       {/* Modal Form */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white px-6 py-4 border-b border-gray-100 flex items-center justify-between rounded-t-3xl">
-              <h3 className="font-bold text-gray-900">{editItem ? "Edit Menu" : "Tambah Menu"}</h3>
-              <button onClick={() => setShowForm(false)} className="p-1.5 rounded-xl hover:bg-gray-100">
-                <X className="h-4 w-4" />
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto overflow-x-hidden">
+          <div className="bg-white rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto overflow-x-hidden shadow-2xl border border-gray-100 my-auto flex flex-col">
+            <div className="sticky top-0 bg-[#e6203b] text-white px-5 py-4 flex items-center justify-between rounded-t-3xl z-10 shadow-sm">
+              <h3 className="font-bold text-white text-base">{editItem ? "Edit Menu" : "Tambah Menu"}</h3>
+              <button
+                type="button"
+                onClick={() => setShowForm(false)}
+                className="p-1.5 rounded-xl text-white/80 hover:text-white hover:bg-white/15 transition-colors"
+              >
+                <X className="h-5 w-5" />
               </button>
             </div>
 

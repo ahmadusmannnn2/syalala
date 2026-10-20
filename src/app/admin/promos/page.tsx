@@ -4,13 +4,13 @@ import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { createPromotion, updatePromotion, deletePromotion } from "@/app/actions/promos";
 import { uploadPromoImage, deleteStorageFile } from "@/app/actions/upload";
-import { formatRupiah } from "@/lib/utils";
+import { formatRupiah, cn } from "@/lib/utils";
 import { compressImage } from "@/lib/compressImage";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { Promotion } from "@/types";
-import { Plus, Edit2, Trash2, X, Gift, Upload, Image as ImageIcon } from "lucide-react";
+import { Plus, Edit2, Trash2, X, Gift, Upload, Image as ImageIcon, Clock, CheckCircle2 } from "lucide-react";
 
 const DAYS = [
   { value: "monday", label: "Senin" },
@@ -44,6 +44,7 @@ export default function AdminPromosPage() {
   const [showForm, setShowForm] = useState(false);
   const [editItem, setEditItem] = useState<Promotion | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [timeMode, setTimeMode] = useState<"all_day" | "single_session" | "two_sessions">("all_day");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -70,6 +71,7 @@ export default function AdminPromosPage() {
   const openCreate = () => {
     setEditItem(null);
     setForm(emptyForm);
+    setTimeMode("all_day");
     setImageFile(null);
     setImagePreview(null);
     setShowForm(true);
@@ -92,6 +94,16 @@ export default function AdminPromosPage() {
       is_active: promo.is_active,
       image_url: promo.image_url,
     });
+
+    // Otomatis tentukan mode jam berlaku
+    if (promo.valid_time_start_2 && promo.valid_time_end_2) {
+      setTimeMode("two_sessions");
+    } else if (promo.valid_time_start && promo.valid_time_end) {
+      setTimeMode("single_session");
+    } else {
+      setTimeMode("all_day");
+    }
+
     setImageFile(null);
     setImagePreview(promo.image_url);
     setShowForm(true);
@@ -140,10 +152,19 @@ export default function AdminPromosPage() {
         image_url: imageUrl,
         start_date: form.start_date || null,
         end_date: form.end_date || null,
-        valid_time_start: form.valid_time_start || null,
-        valid_time_end: form.valid_time_end || null,
-        valid_time_start_2: form.valid_time_start_2 || null,
-        valid_time_end_2: form.valid_time_end_2 || null,
+        // Kirim jam sesuai mode yang dipilih
+        valid_time_start:
+          timeMode !== "all_day" && form.valid_time_start ? form.valid_time_start : null,
+        valid_time_end:
+          timeMode !== "all_day" && form.valid_time_end ? form.valid_time_end : null,
+        valid_time_start_2:
+          timeMode === "two_sessions" && form.valid_time_start_2
+            ? form.valid_time_start_2
+            : null,
+        valid_time_end_2:
+          timeMode === "two_sessions" && form.valid_time_end_2
+            ? form.valid_time_end_2
+            : null,
         min_transaction: form.min_transaction ? Number(form.min_transaction) : null,
       };
 
@@ -251,20 +272,22 @@ export default function AdminPromosPage() {
 
       {/* Modal Form */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white px-6 py-4 border-b border-gray-100 flex items-center justify-between rounded-t-3xl z-10">
-              <h3 className="font-bold text-gray-900">{editItem ? "Edit Promo" : "Tambah Promo"}</h3>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto overflow-x-hidden">
+          <div className="bg-white rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto overflow-x-hidden shadow-2xl border border-gray-100 my-auto flex flex-col">
+            <div className="sticky top-0 bg-[#e6203b] text-white px-5 py-4 flex items-center justify-between rounded-t-3xl z-10 shadow-sm">
+              <h3 className="font-bold text-white text-base">
+                {editItem ? "Edit Promo" : "Tambah Promo"}
+              </h3>
               <button
                 type="button"
                 onClick={() => setShowForm(false)}
-                className="p-1.5 rounded-xl hover:bg-gray-100 text-gray-500"
+                className="p-1.5 rounded-xl text-white/80 hover:text-white hover:bg-white/15 transition-colors"
               >
-                <X className="h-4 w-4" />
+                <X className="h-5 w-5" />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4">
               {/* Image upload */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">
@@ -400,41 +423,163 @@ export default function AdminPromosPage() {
                 </div>
               </div>
 
-              {/* Valid time */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Jam Berlaku (Sesi 1)</label>
-                <div className="grid grid-cols-2 gap-3">
-                  <input
-                    type="time"
-                    value={form.valid_time_start}
-                    onChange={(e) => setForm((f) => ({ ...f, valid_time_start: e.target.value }))}
-                    className="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#e6203b]/30 focus:border-[#e6203b]"
-                  />
-                  <input
-                    type="time"
-                    value={form.valid_time_end}
-                    onChange={(e) => setForm((f) => ({ ...f, valid_time_end: e.target.value }))}
-                    className="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#e6203b]/30 focus:border-[#e6203b]"
-                  />
+              {/* PENGATURAN JAM BERLAKU PROMO */}
+              <div className="bg-gray-50/80 border border-gray-200/80 rounded-2xl p-4 space-y-3.5">
+                <div className="flex items-center justify-between">
+                  <label className="block text-sm font-bold text-gray-800">
+                    Jam Berlaku Promo
+                  </label>
+                  <span className="text-[11px] text-gray-500 font-medium">Pilih jadwal jam promo</span>
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Jam Berlaku (Sesi 2, opsional)</label>
-                <div className="grid grid-cols-2 gap-3">
-                  <input
-                    type="time"
-                    value={form.valid_time_start_2}
-                    onChange={(e) => setForm((f) => ({ ...f, valid_time_start_2: e.target.value }))}
-                    className="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#e6203b]/30 focus:border-[#e6203b]"
-                  />
-                  <input
-                    type="time"
-                    value={form.valid_time_end_2}
-                    onChange={(e) => setForm((f) => ({ ...f, valid_time_end_2: e.target.value }))}
-                    className="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#e6203b]/30 focus:border-[#e6203b]"
-                  />
+                {/* 3 Opsi: Sepanjang Hari, 1 Sesi, 2 Sesi */}
+                <div className="grid grid-cols-3 gap-1.5 p-1 bg-white border border-gray-200 rounded-xl">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTimeMode("all_day");
+                      setForm((f) => ({
+                        ...f,
+                        valid_time_start: "",
+                        valid_time_end: "",
+                        valid_time_start_2: "",
+                        valid_time_end_2: "",
+                      }));
+                    }}
+                    className={cn(
+                      "py-2 px-1 rounded-lg text-xs font-semibold transition-all text-center",
+                      timeMode === "all_day"
+                        ? "bg-[#e6203b] text-white shadow-sm font-bold"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    )}
+                  >
+                    Sepanjang Hari
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTimeMode("single_session");
+                      setForm((f) => ({
+                        ...f,
+                        valid_time_start_2: "",
+                        valid_time_end_2: "",
+                      }));
+                    }}
+                    className={cn(
+                      "py-2 px-1 rounded-lg text-xs font-semibold transition-all text-center",
+                      timeMode === "single_session"
+                        ? "bg-[#e6203b] text-white shadow-sm font-bold"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    )}
+                  >
+                    1 Sesi Jam
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setTimeMode("two_sessions")}
+                    className={cn(
+                      "py-2 px-1 rounded-lg text-xs font-semibold transition-all text-center",
+                      timeMode === "two_sessions"
+                        ? "bg-[#e6203b] text-white shadow-sm font-bold"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    )}
+                  >
+                    2 Sesi Jam
+                  </button>
                 </div>
+
+                {/* Keterangan Sepanjang Hari */}
+                {timeMode === "all_day" && (
+                  <div className="p-3 bg-green-50 border border-green-200 rounded-xl flex items-center gap-2 text-green-700 text-xs font-medium">
+                    <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-green-600" />
+                    <span>Promo berlaku sepanjang hari (tidak dibatasi jam tertentu).</span>
+                  </div>
+                )}
+
+                {/* Input Sesi 1 */}
+                {timeMode !== "all_day" && (
+                  <div className="space-y-2 bg-white p-3 rounded-xl border border-gray-200">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-gray-700 flex items-center gap-1.5">
+                        <Clock className="h-3.5 w-3.5 text-[#e6203b]" />
+                        Sesi 1 {timeMode === "two_sessions" ? "(Siang)" : ""}
+                      </span>
+                      {timeMode === "single_session" && (
+                        <button
+                          type="button"
+                          onClick={() => setTimeMode("two_sessions")}
+                          className="text-[11px] text-[#e6203b] hover:underline font-semibold"
+                        >
+                          + Tambah Sesi 2
+                        </button>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-[11px] text-gray-500 mb-1">Jam Mulai</label>
+                        <input
+                          type="time"
+                          value={form.valid_time_start}
+                          onChange={(e) => setForm((f) => ({ ...f, valid_time_start: e.target.value }))}
+                          className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs focus:ring-2 focus:ring-[#e6203b]/30 focus:border-[#e6203b]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] text-gray-500 mb-1">Jam Selesai</label>
+                        <input
+                          type="time"
+                          value={form.valid_time_end}
+                          onChange={(e) => setForm((f) => ({ ...f, valid_time_end: e.target.value }))}
+                          className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs focus:ring-2 focus:ring-[#e6203b]/30 focus:border-[#e6203b]"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Input Sesi 2 */}
+                {timeMode === "two_sessions" && (
+                  <div className="space-y-2 bg-white p-3 rounded-xl border border-gray-200">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-gray-700 flex items-center gap-1.5">
+                        <Clock className="h-3.5 w-3.5 text-[#e6203b]" />
+                        Sesi 2 (Malam)
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setTimeMode("single_session");
+                          setForm((f) => ({ ...f, valid_time_start_2: "", valid_time_end_2: "" }));
+                        }}
+                        className="text-[11px] text-red-500 hover:underline font-medium"
+                      >
+                        Nonaktifkan Sesi 2
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-[11px] text-gray-500 mb-1">Jam Mulai</label>
+                        <input
+                          type="time"
+                          value={form.valid_time_start_2}
+                          onChange={(e) => setForm((f) => ({ ...f, valid_time_start_2: e.target.value }))}
+                          className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs focus:ring-2 focus:ring-[#e6203b]/30 focus:border-[#e6203b]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] text-gray-500 mb-1">Jam Selesai</label>
+                        <input
+                          type="time"
+                          value={form.valid_time_end_2}
+                          onChange={(e) => setForm((f) => ({ ...f, valid_time_end_2: e.target.value }))}
+                          className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs focus:ring-2 focus:ring-[#e6203b]/30 focus:border-[#e6203b]"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div>

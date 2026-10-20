@@ -1,8 +1,8 @@
 "use client";
 
-import { Menu, LogOut, Bell } from "lucide-react";
+import Link from "next/link";
+import { Menu, LogOut, UtensilsCrossed, ExternalLink } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
 
 interface AdminHeaderProps {
   onMenuClick: () => void;
@@ -10,39 +10,56 @@ interface AdminHeaderProps {
 }
 
 export function AdminHeader({ onMenuClick, title = "Dashboard" }: AdminHeaderProps) {
-  const router = useRouter();
   const supabase = createClient();
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.push("/admin/login");
-    router.refresh();
+    window.location.href = "/admin/login";
   };
 
   return (
-    <header className="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30">
-      <div className="flex items-center gap-3">
+    <header className="h-14 sm:h-16 bg-[#e6203b] text-white shadow-md flex items-center justify-between px-3 sm:px-5 lg:px-6 sticky top-0 z-30 select-none">
+      <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
         <button
           onClick={onMenuClick}
-          className="lg:hidden p-2 rounded-xl hover:bg-gray-100 transition-colors"
-          aria-label="Toggle menu"
+          className="lg:hidden p-2 rounded-xl text-white/90 hover:text-white hover:bg-white/10 active:scale-95 transition-all flex-shrink-0"
+          aria-label="Buka menu navigasi"
         >
-          <Menu className="h-5 w-5 text-gray-600" />
+          <Menu className="h-5 w-5" />
         </button>
-        <h1 className="text-lg font-bold text-gray-900">{title}</h1>
+
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-xl bg-white p-0.5 shadow-sm flex items-center justify-center text-[#e6203b] flex-shrink-0">
+            <UtensilsCrossed className="h-4.5 w-4.5 stroke-[2.5]" />
+          </div>
+          <div className="flex flex-col min-w-0">
+            <h1 className="text-base sm:text-lg font-black text-white tracking-tight leading-tight truncate">
+              {title}
+            </h1>
+            <span className="text-[10px] text-white/80 font-medium hidden sm:inline">
+              Admin Panel Syalala
+            </span>
+          </div>
+        </div>
       </div>
 
-      <div className="flex items-center gap-2">
-        <button className="p-2 rounded-xl hover:bg-gray-100 transition-colors relative">
-          <Bell className="h-5 w-5 text-gray-500" />
-        </button>
+      <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+        <Link
+          href="/"
+          target="_blank"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-white bg-white/15 hover:bg-white hover:text-[#e6203b] transition-all active:scale-95 shadow-sm border border-white/20"
+        >
+          <ExternalLink className="h-3.5 w-3.5" />
+          <span className="hidden sm:inline">Lihat Web</span>
+        </Link>
+
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-[#e6203b] transition-colors"
-          title="Logout"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-white/90 hover:text-white bg-white/10 hover:bg-white/20 transition-all active:scale-95"
+          title="Keluar dari Admin"
         >
-          <LogOut className="h-4 w-4" />
-          <span className="hidden sm:inline">Logout</span>
+          <LogOut className="h-3.5 w-3.5" />
+          <span className="hidden sm:inline">Keluar</span>
         </button>
       </div>
     </header>

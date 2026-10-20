@@ -10,6 +10,7 @@ import {
   Home,
   X,
   ChevronRight,
+  ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -20,9 +21,9 @@ interface AdminSidebarProps {
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { href: "/admin/menu", label: "Menu", icon: UtensilsCrossed },
+  { href: "/admin/menu", label: "Kelola Menu", icon: UtensilsCrossed },
   { href: "/admin/categories", label: "Kategori", icon: Tag },
-  { href: "/admin/promos", label: "Promo", icon: Megaphone },
+  { href: "/admin/promos", label: "Promo & Diskon", icon: Megaphone },
   { href: "/admin/home", label: "Halaman Home", icon: Home },
 ];
 
@@ -36,42 +37,45 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
 
   return (
     <>
-      {/* Overlay for mobile */}
+      {/* Overlay for mobile with blur */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden transition-opacity"
           onClick={onClose}
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar Drawer */}
       <aside
         className={cn(
-          "fixed top-0 left-0 h-full w-64 bg-white border-r border-gray-200 z-50 transition-transform duration-300 lg:translate-x-0 lg:static lg:z-auto flex flex-col",
+          "fixed top-0 left-0 h-full w-64 bg-white border-r border-gray-200/80 z-50 transition-transform duration-300 ease-out lg:translate-x-0 lg:static lg:z-auto flex flex-col shadow-xl lg:shadow-none select-none",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        {/* Logo */}
-        <div className="h-16 flex items-center justify-between px-6 border-b border-gray-100 flex-shrink-0">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[#e6203b] flex items-center justify-center">
-              <UtensilsCrossed className="h-4 w-4 text-white" />
+        {/* Brand Header */}
+        <div className="h-16 flex items-center justify-between px-5 border-b border-gray-100 flex-shrink-0 bg-gradient-to-r from-[#e6203b]/5 to-transparent">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-[#e6203b] flex items-center justify-center text-white shadow-sm shadow-[#e6203b]/30">
+              <UtensilsCrossed className="h-4.5 w-4.5 stroke-[2.5]" />
             </div>
             <div>
-              <p className="font-bold text-gray-900 text-sm leading-none">Syalala</p>
-              <p className="text-[10px] text-gray-400 leading-none mt-0.5">Admin Panel</p>
+              <p className="font-black text-gray-900 text-base leading-none">Syalala</p>
+              <p className="text-[10px] text-gray-400 font-semibold leading-none mt-1">
+                Admin Control Panel
+              </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="lg:hidden p-1 rounded-lg hover:bg-gray-100"
+            className="lg:hidden p-1.5 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors"
+            aria-label="Tutup menu"
           >
-            <X className="h-4 w-4 text-gray-500" />
+            <X className="h-5 w-5" />
           </button>
         </div>
 
-        {/* Nav */}
-        <nav className="p-3 space-y-1 flex-1 overflow-y-auto">
+        {/* Navigation Items */}
+        <nav className="p-3.5 space-y-1.5 flex-1 overflow-y-auto">
           {navItems.map((item) => {
             const active = isActive(item.href, item.exact);
             return (
@@ -80,31 +84,36 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
                 href={item.href}
                 onClick={onClose}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group",
+                  "flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm transition-all duration-200 group active:scale-[0.98]",
                   active
-                    ? "bg-[#e6203b] text-white shadow-sm"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    ? "bg-[#e6203b] text-white shadow-md shadow-[#e6203b]/25 font-bold"
+                    : "text-gray-700 hover:bg-red-50/70 hover:text-[#e6203b] font-semibold"
                 )}
               >
-                <item.icon className="h-4 w-4 flex-shrink-0" />
+                <item.icon
+                  className={cn(
+                    "h-4.5 w-4.5 flex-shrink-0 transition-transform",
+                    active ? "scale-105" : "text-gray-400 group-hover:text-[#e6203b]"
+                  )}
+                />
                 <span className="flex-1">{item.label}</span>
                 {!active && (
-                  <ChevronRight className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <ChevronRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity text-gray-400" />
                 )}
               </Link>
             );
           })}
         </nav>
 
-        {/* Footer */}
-        <div className="p-4 border-t border-gray-100 flex-shrink-0">
+        {/* Footer Shortcut to Customer */}
+        <div className="p-4 border-t border-gray-100 flex-shrink-0 bg-gray-50/50">
           <Link
             href="/"
             target="_blank"
-            className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"
+            className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl text-xs font-bold text-[#e6203b] bg-red-50 hover:bg-red-100 border border-red-200/60 transition-all active:scale-95 shadow-sm"
           >
-            <Home className="h-3.5 w-3.5" />
-            Lihat Halaman Customer
+            <ExternalLink className="h-3.5 w-3.5" />
+            <span>Lihat Menu Customer</span>
           </Link>
         </div>
       </aside>

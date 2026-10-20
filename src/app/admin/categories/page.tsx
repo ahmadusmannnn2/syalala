@@ -141,12 +141,16 @@ export default function AdminCategoriesPage() {
 
       {/* Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-sm">
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-              <h3 className="font-bold text-gray-900">{editItem ? "Edit Kategori" : "Tambah Kategori"}</h3>
-              <button onClick={() => setShowForm(false)} className="p-1.5 rounded-xl hover:bg-gray-100">
-                <X className="h-4 w-4" />
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto overflow-x-hidden">
+          <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl border border-gray-100 overflow-hidden my-auto flex flex-col">
+            <div className="bg-[#e6203b] text-white px-5 py-4 flex items-center justify-between">
+              <h3 className="font-bold text-white text-base">{editItem ? "Edit Kategori" : "Tambah Kategori"}</h3>
+              <button
+                type="button"
+                onClick={() => setShowForm(false)}
+                className="p-1.5 rounded-xl text-white/80 hover:text-white hover:bg-white/15 transition-colors"
+              >
+                <X className="h-5 w-5" />
               </button>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
