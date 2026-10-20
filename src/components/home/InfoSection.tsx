@@ -13,22 +13,22 @@ export function InfoSection({ settings }: InfoSectionProps) {
 
   return (
     <section className="max-w-2xl mx-auto px-4 pb-8">
-      <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4">
+      <div className="bg-red-50/60 border border-red-100 rounded-2xl p-4 shadow-sm">
         <div className="flex items-center gap-2 mb-3">
-          <Info className="h-4 w-4 text-orange-500" />
+          <Info className="h-4 w-4 text-[#e6203b]" />
           <h3 className="font-bold text-gray-800 text-sm">Info Biaya Tambahan</h3>
         </div>
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2 text-gray-600">
-              <Package className="h-3.5 w-3.5 text-orange-400" />
+              <Package className="h-3.5 w-3.5 text-red-400" />
               <span>Take Away</span>
             </div>
             <span className="font-semibold text-gray-800">+{formatRupiah(takeAway)}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2 text-gray-600">
-              <Layers className="h-3.5 w-3.5 text-orange-400" />
+              <Layers className="h-3.5 w-3.5 text-red-400" />
               <span>Upgrade Jumbo</span>
             </div>
             <span className="font-semibold text-gray-800">+{formatRupiah(jumbo)}</span>
@@ -40,9 +40,9 @@ export function InfoSection({ settings }: InfoSectionProps) {
             </div>
             <span className="font-semibold text-gray-800 text-xs">Lvl 1-2 (+2k) • Lvl 3+ (+1k/lvl)</span>
           </div>
-          <div className="h-px bg-orange-200 my-1" />
-          <p className="text-xs text-orange-700 font-medium text-center flex items-center justify-center gap-1.5">
-            <AlertCircle className="h-3.5 w-3.5 text-orange-600" />
+          <div className="h-px bg-red-100 my-1" />
+          <p className="text-xs text-red-700 font-medium text-center flex items-center justify-center gap-1.5">
+            <AlertCircle className="h-3.5 w-3.5 text-[#e6203b]" />
             <span>{taxStatus}</span>
           </p>
         </div>

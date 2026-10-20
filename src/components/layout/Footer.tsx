@@ -1,40 +1,102 @@
-import { UtensilsCrossed, MessageCircle } from "lucide-react";
+import { UtensilsCrossed, MessageCircle, MapPin } from "lucide-react";
 import { InstagramIcon } from "@/components/ui/InstagramIcon";
+import { TikTokIcon } from "@/components/ui/TikTokIcon";
 
-export function Footer() {
+interface FooterProps {
+  logoUrl?: string | null;
+  restaurantName?: string;
+  tagline?: string;
+  waLink?: string | null;
+  igLink?: string | null;
+  tiktokLink?: string | null;
+  mapsLink?: string | null;
+}
+
+export function Footer({
+  logoUrl = null,
+  restaurantName = "Syalala",
+  tagline = "Mie Sosis Bakar Extra Pedas",
+  waLink,
+  igLink,
+  tiktokLink,
+  mapsLink,
+}: FooterProps) {
   return (
-    <footer className="bg-gray-900 text-white mt-16">
+    <footer className="bg-gradient-to-b from-[#e6203b] via-[#c41833] to-[#8b0f22] text-white mt-12 pb-24 shadow-inner">
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="flex flex-col items-center text-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[#e6203b] flex items-center justify-center">
-              <UtensilsCrossed className="h-4 w-4 text-white" />
+          {/* Brand Header with Logo like Navbar */}
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-white p-0.5 shadow-sm flex items-center justify-center flex-shrink-0">
+              {logoUrl ? (
+                <img
+                  src={logoUrl}
+                  alt={restaurantName}
+                  className="w-full h-full object-cover rounded-[10px]"
+                />
+              ) : (
+                <div className="w-full h-full bg-white flex items-center justify-center text-[#e6203b]">
+                  <UtensilsCrossed className="h-4 w-4 stroke-[2.5]" />
+                </div>
+              )}
             </div>
-            <span className="font-bold text-white text-lg">Syalala</span>
+            <span className="font-black text-xl text-white tracking-tight drop-shadow-sm">
+              {restaurantName}
+            </span>
           </div>
-          <p className="text-gray-400 text-sm">Mie Sosis Bakar Extra Pedas</p>
-          <div className="flex items-center gap-3">
-            <a
-              href="https://instagram.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 rounded-full bg-gray-800 hover:bg-[#e6203b] transition-colors"
-              aria-label="Instagram"
-            >
-              <InstagramIcon className="h-4 w-4" />
-            </a>
-            <a
-              href="https://wa.me/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 rounded-full bg-gray-800 hover:bg-[#e6203b] transition-colors"
-              aria-label="WhatsApp"
-            >
-              <MessageCircle className="h-4 w-4" />
-            </a>
+
+          <p className="text-white/80 text-xs sm:text-sm max-w-xs">{tagline}</p>
+
+          {/* Social & Contact Icons */}
+          <div className="flex items-center gap-2.5">
+            {igLink && (
+              <a
+                href={igLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-full bg-white/15 hover:bg-white hover:text-[#e6203b] text-white flex items-center justify-center transition-all duration-200 active:scale-95 shadow-sm border border-white/20"
+                aria-label="Instagram"
+              >
+                <InstagramIcon className="h-4.5 w-4.5" />
+              </a>
+            )}
+            {tiktokLink && (
+              <a
+                href={tiktokLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-full bg-white/15 hover:bg-white hover:text-black text-white flex items-center justify-center transition-all duration-200 active:scale-95 shadow-sm border border-white/20"
+                aria-label="TikTok"
+              >
+                <TikTokIcon className="h-4.5 w-4.5" />
+              </a>
+            )}
+            {waLink && (
+              <a
+                href={waLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-full bg-white/15 hover:bg-white hover:text-[#25D366] text-white flex items-center justify-center transition-all duration-200 active:scale-95 shadow-sm border border-white/20"
+                aria-label="WhatsApp"
+              >
+                <MessageCircle className="h-4.5 w-4.5" />
+              </a>
+            )}
+            {mapsLink && (
+              <a
+                href={mapsLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-full bg-white/15 hover:bg-white hover:text-[#e6203b] text-white flex items-center justify-center transition-all duration-200 active:scale-95 shadow-sm border border-white/20"
+                aria-label="Google Maps"
+              >
+                <MapPin className="h-4.5 w-4.5" />
+              </a>
+            )}
           </div>
-          <p className="text-gray-500 text-xs">
-            © {new Date().getFullYear()} Syalala. Harga belum termasuk PPN 10%.
+
+          <p className="text-white/70 text-xs mt-1">
+            © {new Date().getFullYear()} {restaurantName}. Harga belum termasuk PPN 10%.
           </p>
         </div>
       </div>

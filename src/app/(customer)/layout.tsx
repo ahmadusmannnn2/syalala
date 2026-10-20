@@ -10,7 +10,7 @@ export default async function CustomerLayout({
   const supabase = await createClient();
   const { data: settings } = await supabase
     .from("restaurant_settings")
-    .select("logo_url, name")
+    .select("logo_url, name, tagline, whatsapp_link, instagram_link, tiktok_link, google_maps_link")
     .single();
 
   return (
@@ -20,7 +20,15 @@ export default async function CustomerLayout({
         restaurantName={settings?.name ?? "Syalala"}
       />
       <main className="min-h-screen pb-32">{children}</main>
-      <Footer />
+      <Footer
+        logoUrl={settings?.logo_url ?? null}
+        restaurantName={settings?.name ?? "Syalala"}
+        tagline={settings?.tagline ?? "Mie Sosis Bakar Extra Pedas"}
+        waLink={settings?.whatsapp_link ?? null}
+        igLink={settings?.instagram_link ?? null}
+        tiktokLink={settings?.tiktok_link ?? null}
+        mapsLink={settings?.google_maps_link ?? null}
+      />
     </>
   );
 }

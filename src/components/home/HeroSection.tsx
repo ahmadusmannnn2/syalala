@@ -5,7 +5,6 @@ import {
   MapPin,
   MessageCircle,
   UtensilsCrossed,
-  Flame,
   Clock,
 } from "lucide-react";
 import { InstagramIcon } from "@/components/ui/InstagramIcon";
@@ -25,38 +24,32 @@ export function HeroSection({ settings }: HeroSectionProps) {
   const igLink = settings?.instagram_link || null;
   const tiktokLink = settings?.tiktok_link || null;
 
-  // Normalisasi handle untuk tampilan Linktree
   const handleName = name.toLowerCase().replace(/\s+/g, "");
 
   return (
     <section className="relative bg-gray-50 pb-4">
-      {/* Upper Red Header Card (Aliran menyatu dengan navbar merah) */}
-      <div className="bg-gradient-to-b from-[#e6203b] via-[#d61c35] to-[#ba142c] text-white pt-4 pb-12 px-4 rounded-b-[2.5rem] shadow-sm relative overflow-hidden">
+      {/* Upper Red Header Card */}
+      <div className="bg-gradient-to-b from-[#e6203b] via-[#d61c35] to-[#ba142c] text-white pt-5 pb-12 px-4 rounded-b-[2.5rem] shadow-sm relative overflow-hidden">
         {/* Ambient subtle circles */}
         <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-white/5 -translate-y-1/2 translate-x-1/3 pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full bg-black/5 translate-y-1/3 -translate-x-1/4 pointer-events-none" />
 
         <div className="relative max-w-md mx-auto flex flex-col items-center text-center">
-          {/* Circular Avatar Logo (Ala Linktree Modern) */}
-          <div className="relative mb-3 group">
-            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-white p-1 shadow-xl shadow-black/20 overflow-hidden flex items-center justify-center border-4 border-white/95">
-              {settings?.logo_url ? (
+          {/* Frameless Logo Restoran (Tanpa lingkaran putih, tanpa api) */}
+          <div className="relative mb-3 flex items-center justify-center">
+            {settings?.logo_url ? (
+              <div className="w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center drop-shadow-[0_8px_20px_rgba(0,0,0,0.35)] hover:scale-105 transition-transform duration-300">
                 <img
                   src={settings.logo_url}
                   alt={name}
-                  className="w-full h-full object-cover rounded-full"
+                  className="w-full h-full object-contain"
                 />
-              ) : (
-                <div className="w-full h-full rounded-full bg-[#e6203b] flex items-center justify-center text-white">
-                  <UtensilsCrossed className="h-10 w-10 stroke-[2.5]" />
-                </div>
-              )}
-            </div>
-
-            {/* Small Verified / Flame Accent Badge */}
-            <div className="absolute bottom-0.5 right-0.5 w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center text-[#e6203b] border-2 border-[#e6203b]/20">
-              <Flame className="h-4 w-4 fill-[#e6203b]" />
-            </div>
+              </div>
+            ) : (
+              <div className="w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center text-white drop-shadow-md">
+                <UtensilsCrossed className="h-16 w-16 stroke-[2]" />
+              </div>
+            )}
           </div>
 
           {/* Title / Handle (@syalalamiesosis) */}
@@ -64,14 +57,62 @@ export function HeroSection({ settings }: HeroSectionProps) {
             @{handleName}
           </h1>
 
-          {/* Subtitle / Since / Tagline */}
+          {/* Tagline */}
           <p className="text-xs sm:text-sm text-white/95 font-medium max-w-xs mx-auto mt-1 leading-snug">
             {tagline}
           </p>
 
+          {/* Ikon Sosial & Kontak yang bisa diklik (Pengganti teks "nikmati citarasa pedas...") */}
+          <div className="flex items-center justify-center gap-2.5 mt-3">
+            {igLink && (
+              <a
+                href={igLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className="w-10 h-10 rounded-full bg-white/15 hover:bg-white hover:text-[#e6203b] text-white flex items-center justify-center transition-all duration-200 active:scale-95 shadow-sm border border-white/20 backdrop-blur-sm"
+              >
+                <InstagramIcon className="h-5 w-5" />
+              </a>
+            )}
+            {tiktokLink && (
+              <a
+                href={tiktokLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="TikTok"
+                className="w-10 h-10 rounded-full bg-white/15 hover:bg-white hover:text-black text-white flex items-center justify-center transition-all duration-200 active:scale-95 shadow-sm border border-white/20 backdrop-blur-sm"
+              >
+                <TikTokIcon className="h-5 w-5" />
+              </a>
+            )}
+            {waLink && (
+              <a
+                href={waLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="WhatsApp"
+                className="w-10 h-10 rounded-full bg-white/15 hover:bg-white hover:text-[#25D366] text-white flex items-center justify-center transition-all duration-200 active:scale-95 shadow-sm border border-white/20 backdrop-blur-sm"
+              >
+                <MessageCircle className="h-5 w-5" />
+              </a>
+            )}
+            {mapsLink && (
+              <a
+                href={mapsLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Google Maps"
+                className="w-10 h-10 rounded-full bg-white/15 hover:bg-white hover:text-[#e6203b] text-white flex items-center justify-center transition-all duration-200 active:scale-95 shadow-sm border border-white/20 backdrop-blur-sm"
+              >
+                <MapPin className="h-5 w-5" />
+              </a>
+            )}
+          </div>
+
           {/* Jam Operasional / Info */}
           {heroText && (
-            <div className="inline-flex items-center gap-1.5 bg-black/25 backdrop-blur-sm px-3.5 py-1 rounded-full text-xs font-semibold text-white/95 mt-2 border border-white/10 shadow-inner">
+            <div className="inline-flex items-center gap-1.5 bg-black/25 backdrop-blur-sm px-3.5 py-1 rounded-full text-xs font-semibold text-white/95 mt-2.5 border border-white/10 shadow-inner">
               <Clock className="h-3.5 w-3.5 text-white/90" />
               <span>{heroText}</span>
             </div>
@@ -79,7 +120,7 @@ export function HeroSection({ settings }: HeroSectionProps) {
         </div>
       </div>
 
-      {/* Main Linktree Container (-mt-6 overlap smooth) */}
+      {/* Main Linktree Container */}
       <div className="relative max-w-md mx-auto px-4 -mt-7 z-10 space-y-3">
         {/* BIG FEATURED CARD: LIHAT MENU SYALALA DI SINI */}
         <Link
@@ -121,7 +162,7 @@ export function HeroSection({ settings }: HeroSectionProps) {
           </div>
         </Link>
 
-        {/* STACKED LINKTREE BUTTONS (Sleek, Organized, White Rounded Cards) */}
+        {/* STACKED LINKTREE BUTTONS */}
         <div className="space-y-2.5">
           {/* Instagram */}
           {igLink && (

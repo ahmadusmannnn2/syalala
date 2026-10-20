@@ -111,28 +111,29 @@ export function Navbar({
         </div>
       </header>
 
-      {/* Floating Bottom Pill Navigation (iOS 27 Style — Ergonomis, Lebih Rendah & Nyaman di iPhone) */}
+      {/* Floating Bottom Pill Navigation (iOS Spring Motion — Alami, Ringan & Ergonomis) */}
       <nav
         aria-label="Navigasi Utama"
         className="fixed bottom-2.5 sm:bottom-4 left-1/2 -translate-x-1/2 z-50 pointer-events-auto select-none mb-[env(safe-area-inset-bottom)]"
       >
-        <div className="flex items-center gap-1.5 sm:gap-2 bg-white/95 backdrop-blur-2xl border border-white/80 shadow-[0_12px_40px_rgba(0,0,0,0.18)] rounded-full p-1.5 sm:p-2 transition-all duration-300">
+        <div className="flex items-center gap-1 sm:gap-1.5 bg-white/95 backdrop-blur-2xl border border-white/80 shadow-[0_12px_40px_rgba(0,0,0,0.18)] rounded-full p-1.5 sm:p-2 transition-transform duration-300">
           {navItems.map((item) => {
             const active = isActive(item.href, item.exact);
             return (
               <Link
                 key={item.href}
                 href={item.href}
+                prefetch={true}
                 className={cn(
-                  "flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-2.5 rounded-full text-sm transition-all duration-200 active:scale-95",
+                  "relative flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full text-sm transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-90",
                   active
-                    ? "bg-[#e6203b] text-white shadow-lg shadow-[#e6203b]/35 font-bold"
-                    : "text-gray-700 hover:text-gray-950 hover:bg-black/5 font-semibold"
+                    ? "bg-[#e6203b] text-white shadow-[0_4px_18px_rgba(230,32,59,0.38)] font-bold scale-[1.03]"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100/70 font-semibold"
                 )}
               >
                 <item.icon
                   className={cn(
-                    "h-4.5 w-4.5 sm:h-5 sm:w-5 transition-transform",
+                    "h-4.5 w-4.5 sm:h-5 sm:w-5 transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
                     active ? "scale-110 stroke-[2.5]" : "stroke-[2]"
                   )}
                 />

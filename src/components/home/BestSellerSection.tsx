@@ -45,7 +45,7 @@ export function BestSellerSection({ items }: BestSellerSectionProps) {
         <div>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center">
+              <div className="w-7 h-7 rounded-lg bg-red-100 text-[#e6203b] flex items-center justify-center">
                 <ChefHat className="h-4 w-4" />
               </div>
               <h2 className="text-lg font-bold text-gray-900 tracking-tight">Chef&apos;s Choice</h2>

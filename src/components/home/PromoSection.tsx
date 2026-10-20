@@ -43,55 +43,61 @@ export function PromoSection({ promos }: PromoSectionProps) {
           return (
             <div
               key={promo.id}
-              className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all group"
+              className="bg-white rounded-2xl overflow-hidden shadow-sm border border-red-100/70 hover:shadow-lg transition-all group duration-300"
             >
-              {/* Gambar Promo Besar (Klik Mengarah ke /promo) */}
-              <Link href="/promo" className="block relative w-full overflow-hidden bg-gray-100">
-                {promo.image_url ? (
-                  <div className="relative w-full h-44 sm:h-52 overflow-hidden">
-                    <img
-                      src={promo.image_url}
-                      alt={promo.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <div className="absolute top-3 left-3 bg-[#e6203b] text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
-                      <Sparkles className="h-3 w-3" /> Promo Spesial
-                    </div>
+              {/* Gambar Promo (Klik Mengarah ke /promo) */}
+              {promo.image_url ? (
+                <Link
+                  href="/promo"
+                  className="block relative w-full h-44 sm:h-52 overflow-hidden bg-gray-100 cursor-pointer"
+                >
+                  <img
+                    src={promo.image_url}
+                    alt={promo.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute top-3 left-3 bg-[#e6203b] text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-md flex items-center gap-1.5">
+                    <Sparkles className="h-3 w-3" /> Promo Spesial
                   </div>
-                ) : (
-                  <div className="relative w-full h-28 bg-gradient-to-r from-[#e6203b] via-[#c41833] to-[#8b0f22] p-4 text-white flex items-center justify-between">
-                    <div>
-                      <span className="bg-white/20 text-white text-[10px] font-bold px-2 py-0.5 rounded-full inline-block mb-1">
-                        Promo Spesial
-                      </span>
-                      <h3 className="font-bold text-base line-clamp-1">{promo.name}</h3>
-                    </div>
-                    <Gift className="h-10 w-10 text-white/30 flex-shrink-0" />
-                  </div>
-                )}
-              </Link>
+                </Link>
+              ) : null}
 
-              {/* Konten Card: Hanya Nama Promo, Periode & Tombol Detail */}
-              <div className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <Link href="/promo">
-                    <h3 className="font-bold text-gray-900 text-base leading-snug hover:text-[#e6203b] transition-colors line-clamp-1">
-                      {promo.name}
-                    </h3>
-                  </Link>
-                  <div className="flex items-center gap-1.5 text-xs text-gray-500 mt-1">
-                    <Calendar className="h-3.5 w-3.5 text-[#e6203b] flex-shrink-0" />
-                    <span>{periodText}</span>
+              {/* Bagian Bawah Gambar: Background Merah Elegan (Seragam dengan halaman promo) */}
+              <div className="bg-gradient-to-r from-[#e6203b] via-[#c41833] to-[#8b0f22] p-4 text-white relative overflow-hidden">
+                <div className="absolute right-0 top-0 h-full w-24 opacity-15 pointer-events-none">
+                  <div className="h-28 w-28 rounded-full bg-white absolute -right-6 -top-6" />
+                </div>
+
+                <div className="relative flex items-start gap-3">
+                  <div className="bg-white/20 rounded-xl p-2.5 flex-shrink-0 mt-0.5">
+                    <Gift className="h-5 w-5 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <Link href="/promo">
+                      <h3 className="font-bold text-base sm:text-lg leading-tight hover:underline line-clamp-1">
+                        {promo.name}
+                      </h3>
+                    </Link>
+                    <div className="flex items-center gap-1.5 text-xs text-white/90 mt-1">
+                      <Calendar className="h-3.5 w-3.5 text-white/80 flex-shrink-0" />
+                      <span className="truncate">{periodText}</span>
+                    </div>
                   </div>
                 </div>
 
-                <Link
-                  href="/promo"
-                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-[#e6203b] hover:bg-[#c41833] active:scale-95 transition-all shadow-sm shadow-[#e6203b]/20 flex-shrink-0"
-                >
-                  <span>Lihat Detail Promo</span>
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
+                {/* Tombol Lihat Detail Promo yang Jelas & Kontras */}
+                <div className="mt-3 pt-3 border-t border-white/20 flex items-center justify-between">
+                  <span className="text-[11px] text-white/80 font-medium">
+                    Klik untuk syarat & ketentuan
+                  </span>
+                  <Link
+                    href="/promo"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-white text-[#e6203b] hover:bg-gray-100 active:scale-95 transition-all shadow-md flex-shrink-0"
+                  >
+                    <span>Lihat Detail</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
               </div>
             </div>
           );
