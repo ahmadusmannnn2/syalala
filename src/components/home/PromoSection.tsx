@@ -45,16 +45,16 @@ export function PromoSection({ promos }: PromoSectionProps) {
               key={promo.id}
               className="bg-white rounded-2xl overflow-hidden shadow-sm border border-red-100/70 hover:shadow-lg transition-all group duration-300"
             >
-              {/* Gambar Promo (Klik Mengarah ke /promo, Rasio Asli Tanpa Kepotong) */}
+              {/* Gambar Promo (Teaser Card di Home - Seragam & Rapi, Mengarah ke /promo) */}
               {promo.image_url ? (
                 <Link
                   href="/promo"
-                  className="block relative w-full overflow-hidden bg-neutral-900/5 cursor-pointer"
+                  className="block relative w-full h-44 sm:h-52 overflow-hidden bg-gray-100 cursor-pointer"
                 >
                   <img
                     src={promo.image_url}
                     alt={promo.name}
-                    className="w-full h-auto block group-hover:scale-[1.02] transition-transform duration-300"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   <div className="absolute top-3 left-3 bg-[#e6203b] text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-md flex items-center gap-1.5">
                     <Sparkles className="h-3 w-3" /> Promo Spesial

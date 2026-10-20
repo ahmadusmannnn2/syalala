@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
 import { createClient } from "@/lib/supabase/server";
+import { SplashScreen } from "@/components/layout/SplashScreen";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -83,12 +84,34 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  let logoUrl = "/apple-touch-icon.png";
+  let restaurantName = "Syalala";
+
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("restaurant_settings")
+      .select("logo_url, name")
+      .single();
+
+    if (data?.logo_url) logoUrl = data.logo_url;
+    if (data?.name) restaurantName = data.name;
+  } catch {
+    // Fallback
+  }
+
   return (
     <html lang="id" className={poppins.variable}>
       <head>
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content={restaurantName} />
+        <link rel="apple-touch-icon" href={logoUrl} />
+        <link rel="apple-touch-startup-image" href={logoUrl} />
       </head>
       <body className="font-sans antialiased bg-gray-50 text-gray-900">
+        <SplashScreen logoUrl={logoUrl} restaurantName={restaurantName} />
         {children}
       </body>
     </html>
