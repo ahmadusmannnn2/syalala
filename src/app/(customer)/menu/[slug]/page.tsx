@@ -14,6 +14,7 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { Badge } from "@/components/ui/Badge";
 import { ImageZoom } from "@/components/menu/ImageZoom";
+import { SpicinessLevelSelector } from "@/components/menu/SpicinessLevelSelector";
 import { formatRupiah } from "@/lib/utils";
 
 interface Props {
@@ -62,6 +63,12 @@ export default async function MenuDetailPage({ params }: Props) {
   const waLink = settings?.whatsapp_link ?? "https://wa.me/";
   const jumboFee = settings?.jumbo_size_upgrade_fee ?? 4000;
   const taxStatus = settings?.tax_status ?? "Belum termasuk PPN 10%";
+
+  const categoryName = (item.category as { name: string } | null)?.name?.toLowerCase() ?? "";
+  const isMieCategory =
+    categoryName.includes("mie") ||
+    item.slug.toLowerCase().includes("mie") ||
+    item.name.toLowerCase().includes("mie");
 
   const waMessage = encodeURIComponent(
     `Halo Syalala! Saya tertarik dengan menu *${item.name}* (${formatRupiah(item.price)}). Apakah masih tersedia?`
@@ -140,36 +147,40 @@ export default async function MenuDetailPage({ params }: Props) {
             </div>
           </div>
 
-          {/* Price Box */}
-          <div className="bg-gradient-to-br from-red-50/60 to-orange-50/40 border border-red-100 rounded-2xl p-4">
-            <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Harga</span>
-            <p className="text-3xl font-black text-[#e6203b] tracking-tight mt-0.5">
-              {formatRupiah(item.price)}
-            </p>
-            <p className="text-xs text-gray-400 mt-1">*{taxStatus}</p>
-          </div>
-
-          {/* Description */}
-          {item.description && (
-            <div className="bg-gray-50/80 rounded-2xl p-4 border border-gray-100">
-              <h2 className="text-sm font-bold text-gray-800 mb-1">Deskripsi Menu</h2>
-              <p className="text-sm text-gray-600 leading-relaxed">{item.description}</p>
-            </div>
-          )}
-
-          {/* Jumbo info */}
-          {item.supports_jumbo && (
-            <div className="flex items-start gap-3 bg-orange-50 border border-orange-200/80 rounded-2xl p-4">
-              <div className="p-2 bg-orange-100 text-orange-600 rounded-xl">
-                <ShoppingBag className="h-5 w-5" />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-orange-900">Tersedia Ukuran Jumbo</p>
-                <p className="text-xs text-orange-700 mt-0.5 leading-relaxed">
-                  Bisa upgrade porsi jumbo ekstra kenyang hanya +{formatRupiah(jumboFee)}
+          {/* Spiciness Level Selector (Khusus Kategori Mie) */}
+          {isMieCategory ? (
+            <SpicinessLevelSelector
+              basePrice={item.price}
+              supportsJumbo={item.supports_jumbo}
+              jumboFee={jumboFee}
+              taxStatus={taxStatus}
+            />
+          ) : (
+            <>
+              {/* Price Box */}
+              <div className="bg-gradient-to-br from-red-50/60 to-orange-50/40 border border-red-100 rounded-2xl p-4">
+                <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Harga</span>
+                <p className="text-3xl font-black text-[#e6203b] tracking-tight mt-0.5">
+                  {formatRupiah(item.price)}
                 </p>
+                <p className="text-xs text-gray-400 mt-1">*{taxStatus}</p>
               </div>
-            </div>
+
+              {/* Jumbo info */}
+              {item.supports_jumbo && (
+                <div className="flex items-start gap-3 bg-orange-50 border border-orange-200/80 rounded-2xl p-4">
+                  <div className="p-2 bg-orange-100 text-orange-600 rounded-xl">
+                    <ShoppingBag className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-orange-900">Tersedia Ukuran Jumbo</p>
+                    <p className="text-xs text-orange-700 mt-0.5 leading-relaxed">
+                      Bisa upgrade porsi jumbo ekstra kenyang hanya +{formatRupiah(jumboFee)}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </>
           )}
 
           {/* Fitur Order Online (Disembunyikan sementara untuk pengembangan berikutnya) */}

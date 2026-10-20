@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Star, ChefHat, ShoppingBag, UtensilsCrossed } from "lucide-react";
+import { Star, ChefHat, ShoppingBag, UtensilsCrossed, Flame } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { formatRupiah } from "@/lib/utils";
 import { MenuItem } from "@/types";
@@ -10,6 +10,11 @@ interface MenuCardProps {
 }
 
 export function MenuCard({ item }: MenuCardProps) {
+  const isMie =
+    item.name.toLowerCase().includes("mie") ||
+    item.slug.toLowerCase().includes("mie") ||
+    (item.category as { name?: string } | null)?.name?.toLowerCase().includes("mie");
+
   return (
     <Link
       href={`/menu/${item.slug}`}
@@ -66,11 +71,18 @@ export function MenuCard({ item }: MenuCardProps) {
         )}
         <div className="mt-2 flex items-center justify-between">
           <span className="font-bold text-[#e6203b] text-base">{formatRupiah(item.price)}</span>
-          {item.supports_jumbo && (
-            <span className="flex items-center gap-1 text-[10px] text-orange-500 font-medium bg-orange-50 px-1.5 py-0.5 rounded-full">
-              <ShoppingBag className="h-2.5 w-2.5" /> Jumbo
-            </span>
-          )}
+          <div className="flex items-center gap-1 flex-wrap justify-end">
+            {isMie && (
+              <span className="flex items-center gap-0.5 text-[10px] text-red-600 font-semibold bg-red-50 border border-red-100 px-1.5 py-0.5 rounded-full">
+                <Flame className="h-2.5 w-2.5 fill-red-500 text-red-500" /> Lvl
+              </span>
+            )}
+            {item.supports_jumbo && (
+              <span className="flex items-center gap-1 text-[10px] text-orange-500 font-medium bg-orange-50 px-1.5 py-0.5 rounded-full">
+                <ShoppingBag className="h-2.5 w-2.5" /> Jumbo
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </Link>

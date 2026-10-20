@@ -1,4 +1,4 @@
-import { Package, Layers, Info, AlertCircle } from "lucide-react";
+import { Package, Layers, Info, AlertCircle, Flame } from "lucide-react";
 import { RestaurantSettings } from "@/types";
 import { formatRupiah } from "@/lib/utils";
 
@@ -32,6 +32,13 @@ export function InfoSection({ settings }: InfoSectionProps) {
               <span>Upgrade Jumbo</span>
             </div>
             <span className="font-semibold text-gray-800">+{formatRupiah(jumbo)}</span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center gap-2 text-gray-600">
+              <Flame className="h-3.5 w-3.5 text-red-500 fill-red-500" />
+              <span>Level Pedas (Mie)</span>
+            </div>
+            <span className="font-semibold text-gray-800 text-xs">Lvl 1-2 (+2k) • Lvl 3+ (+1k/lvl)</span>
           </div>
           <div className="h-px bg-orange-200 my-1" />
           <p className="text-xs text-orange-700 font-medium text-center flex items-center justify-center gap-1.5">
