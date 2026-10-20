@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
@@ -17,6 +17,20 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [restaurantName, setRestaurantName] = useState("Syalala");
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from("restaurant_settings")
+      .select("logo_url, name")
+      .single()
+      .then(({ data }) => {
+        if (data?.logo_url) setLogoUrl(data.logo_url);
+        if (data?.name) setRestaurantName(data.name);
+      });
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,10 +75,18 @@ function LoginForm() {
           </Link>
 
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-white p-0.5 shadow-sm flex items-center justify-center text-[#e6203b]">
-              <UtensilsCrossed className="h-4.5 w-4.5 stroke-[2.5]" />
+            <div className="w-8 h-8 rounded-xl bg-white p-0.5 shadow-sm flex items-center justify-center text-[#e6203b] overflow-hidden border border-white/20">
+              {logoUrl ? (
+                <img
+                  src={logoUrl}
+                  alt={restaurantName}
+                  className="w-full h-full object-cover rounded-[10px]"
+                />
+              ) : (
+                <UtensilsCrossed className="h-4.5 w-4.5 stroke-[2.5]" />
+              )}
             </div>
-            <span className="font-black text-lg text-white tracking-tight">Syalala</span>
+            <span className="font-black text-lg text-white tracking-tight">{restaurantName}</span>
           </div>
         </div>
       </header>

@@ -7,9 +7,16 @@ import { createClient } from "@/lib/supabase/client";
 interface AdminHeaderProps {
   onMenuClick: () => void;
   title?: string;
+  logoUrl?: string | null;
+  restaurantName?: string;
 }
 
-export function AdminHeader({ onMenuClick, title = "Dashboard" }: AdminHeaderProps) {
+export function AdminHeader({
+  onMenuClick,
+  title = "Dashboard",
+  logoUrl,
+  restaurantName = "Syalala",
+}: AdminHeaderProps) {
   const supabase = createClient();
 
   const handleLogout = async () => {
@@ -29,15 +36,23 @@ export function AdminHeader({ onMenuClick, title = "Dashboard" }: AdminHeaderPro
         </button>
 
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-8 h-8 rounded-xl bg-white p-0.5 shadow-sm flex items-center justify-center text-[#e6203b] flex-shrink-0">
-            <UtensilsCrossed className="h-4.5 w-4.5 stroke-[2.5]" />
+          <div className="w-8 h-8 rounded-xl bg-white p-0.5 shadow-sm flex items-center justify-center text-[#e6203b] flex-shrink-0 overflow-hidden border border-white/20">
+            {logoUrl ? (
+              <img
+                src={logoUrl}
+                alt={restaurantName}
+                className="w-full h-full object-cover rounded-[10px]"
+              />
+            ) : (
+              <UtensilsCrossed className="h-4.5 w-4.5 stroke-[2.5]" />
+            )}
           </div>
           <div className="flex flex-col min-w-0">
             <h1 className="text-base sm:text-lg font-black text-white tracking-tight leading-tight truncate">
               {title}
             </h1>
             <span className="text-[10px] text-white/80 font-medium hidden sm:inline">
-              Admin Panel Syalala
+              Admin Panel {restaurantName}
             </span>
           </div>
         </div>

@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { updateRestaurantSettings } from "@/app/actions/home";
 import { uploadBannerImage, uploadLogoImage } from "@/app/actions/upload";
-import { compressImage } from "@/lib/compressImage";
 import { Button } from "@/components/ui/Button";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { RestaurantSettings } from "@/types";
-import { Upload, Save, X, UtensilsCrossed } from "lucide-react";
+import { Save, UtensilsCrossed } from "lucide-react";
 
 export default function AdminHomePage() {
   const [settings, setSettings] = useState<RestaurantSettings | null>(null);
@@ -19,8 +19,6 @@ export default function AdminHomePage() {
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const bannerFileRef = useRef<HTMLInputElement>(null);
-  const logoFileRef = useRef<HTMLInputElement>(null);
 
   const supabase = createClient();
 
@@ -34,32 +32,6 @@ export default function AdminHomePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleBannerChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    try {
-      const compressed = await compressImage(file, 1920, 1080, 0.85);
-      setBannerFile(compressed);
-      setBannerPreview(URL.createObjectURL(compressed));
-    } catch {
-      setBannerFile(file);
-      setBannerPreview(URL.createObjectURL(file));
-    }
-  };
-
-  const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    try {
-      const compressed = await compressImage(file, 800, 800, 0.9);
-      setLogoFile(compressed);
-      setLogoPreview(URL.createObjectURL(compressed));
-    } catch {
-      setLogoFile(file);
-      setLogoPreview(URL.createObjectURL(file));
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!settings) return;
@@ -71,6 +43,8 @@ export default function AdminHomePage() {
         const fd = new FormData();
         fd.append("file", bannerFile);
         bannerUrl = await uploadBannerImage(fd);
+      } else if (bannerPreview === null) {
+        bannerUrl = null;
       }
 
       let logoUrl = settings.logo_url;
@@ -140,56 +114,28 @@ export default function AdminHomePage() {
           <div>
             <h3 className="font-bold text-gray-900">Logo Restoran</h3>
             <p className="text-xs text-gray-500 mt-0.5">
-              Logo akan tampil di bagian hero atas dan berpindah ke navbar saat di-scroll.
+              Logo akan tampil di navbar atas, sidebar admin, dan header hero.
             </p>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div
-              onClick={() => logoFileRef.current?.click()}
-              className="relative w-24 h-24 rounded-2xl border-2 border-dashed border-gray-200 hover:border-[#e6203b]/50 transition-colors cursor-pointer overflow-hidden bg-gray-50 flex items-center justify-center flex-shrink-0"
-            >
-              {logoPreview ? (
-                <img src={logoPreview} alt="Logo" className="w-full h-full object-cover" />
-              ) : (
-                <div className="flex flex-col items-center justify-center gap-1 text-gray-400">
-                  <UtensilsCrossed className="h-6 w-6" />
-                  <span className="text-[10px]">Pilih Logo</span>
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-1.5">
-              <button
-                type="button"
-                onClick={() => logoFileRef.current?.click()}
-                className="px-4 py-2 rounded-xl text-xs font-semibold bg-gray-100 hover:bg-gray-200 text-gray-800 transition-colors flex items-center gap-1.5"
-              >
-                <Upload className="h-3.5 w-3.5" /> Upload Logo Baru
-              </button>
-              {logoPreview && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setLogoFile(null);
-                    setLogoPreview(null);
-                    setSettings((s) => (s ? { ...s, logo_url: null } : s));
-                  }}
-                  className="block text-xs text-red-500 hover:underline"
-                >
-                  Hapus Logo (Gunakan Icon Default)
-                </button>
-              )}
-              <p className="text-[11px] text-gray-400">Format: PNG, JPG, WEBP transparan disarankan.</p>
-            </div>
-            <input
-              ref={logoFileRef}
-              type="file"
-              accept="image/*"
-              onChange={handleLogoChange}
-              className="hidden"
-            />
-          </div>
+          <ImageUploadField
+            label="Logo Restoran"
+            helperText="Format: PNG, JPG, WEBP (Bisa dipotong persegi atau bulat 1:1)"
+            previewUrl={logoPreview}
+            aspect={1}
+            aspectOptions={[{ label: "1:1 (Persegi)", value: 1 }]}
+            cropShape="round"
+            heightClass="h-40"
+            onImageChange={(file, previewUrl) => {
+              setLogoFile(file);
+              setLogoPreview(previewUrl);
+            }}
+            onImageRemove={() => {
+              setLogoFile(null);
+              setLogoPreview(null);
+              setSettings((s) => (s ? { ...s, logo_url: null } : s));
+            }}
+          />
         </div>
 
         {/* Identity */}
@@ -230,29 +176,35 @@ export default function AdminHomePage() {
           {field("Link TikTok", "tiktok_link", "url", "https://www.tiktok.com/@syalala")}
         </div>
 
-        {/* Banner */}
+        {/* Banner Hero */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4">
-          <h3 className="font-bold text-gray-900">Banner Hero</h3>
-          <div
-            onClick={() => bannerFileRef.current?.click()}
-            className="relative cursor-pointer rounded-2xl border-2 border-dashed border-gray-200 hover:border-[#e6203b]/50 transition-colors overflow-hidden"
-            style={{ height: 180 }}
-          >
-            {bannerPreview ? (
-              <img src={bannerPreview} alt="Banner" className="w-full h-full object-cover" />
-            ) : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-gray-400">
-                <Upload className="h-8 w-8" />
-                <p className="text-sm">Klik untuk upload banner</p>
-              </div>
-            )}
+          <div>
+            <h3 className="font-bold text-gray-900">Banner Hero</h3>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Banner utama yang tampil di bagian atas halaman beranda pelanggan.
+            </p>
           </div>
-          <input
-            ref={bannerFileRef}
-            type="file"
-            accept="image/*"
-            onChange={handleBannerChange}
-            className="hidden"
+
+          <ImageUploadField
+            label="Banner Hero Beranda"
+            helperText="Format: JPG, PNG, WEBP (Otomatis dikompres & dipotong rasio lebar)"
+            previewUrl={bannerPreview}
+            aspect={16 / 9}
+            aspectOptions={[
+              { label: "16:9 (Standar)", value: 16 / 9 },
+              { label: "2:1 (Lebar)", value: 2 / 1 },
+              { label: "4:3 (Tinggi)", value: 4 / 3 },
+            ]}
+            heightClass="h-48"
+            onImageChange={(file, previewUrl) => {
+              setBannerFile(file);
+              setBannerPreview(previewUrl);
+            }}
+            onImageRemove={() => {
+              setBannerFile(null);
+              setBannerPreview(null);
+              setSettings((s) => (s ? { ...s, banner_image_url: null } : s));
+            }}
           />
         </div>
 

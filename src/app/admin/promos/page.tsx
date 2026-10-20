@@ -1,16 +1,16 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { createPromotion, updatePromotion, deletePromotion } from "@/app/actions/promos";
 import { uploadPromoImage, deleteStorageFile } from "@/app/actions/upload";
 import { formatRupiah, cn } from "@/lib/utils";
-import { compressImage } from "@/lib/compressImage";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { Promotion } from "@/types";
-import { Plus, Edit2, Trash2, X, Gift, Upload, Image as ImageIcon, Clock, CheckCircle2 } from "lucide-react";
+import { Plus, Edit2, Trash2, X, Gift, Image as ImageIcon, Clock, CheckCircle2 } from "lucide-react";
 
 const DAYS = [
   { value: "monday", label: "Senin" },
@@ -49,7 +49,6 @@ export default function AdminPromosPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
 
   const supabase = createClient();
 
@@ -107,19 +106,6 @@ export default function AdminPromosPage() {
     setImageFile(null);
     setImagePreview(promo.image_url);
     setShowForm(true);
-  };
-
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    try {
-      const compressed = await compressImage(file);
-      setImageFile(compressed);
-      setImagePreview(URL.createObjectURL(compressed));
-    } catch {
-      setImageFile(file);
-      setImagePreview(URL.createObjectURL(file));
-    }
   };
 
   const toggleDay = (day: string) => {
@@ -308,47 +294,29 @@ export default function AdminPromosPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4">
-              {/* Image upload */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                  Foto / Banner Promo (Opsional)
-                </label>
-                <div
-                  onClick={() => fileRef.current?.click()}
-                  className="relative cursor-pointer rounded-2xl border-2 border-dashed border-gray-200 hover:border-[#e6203b]/50 transition-colors overflow-hidden bg-gray-50 flex items-center justify-center"
-                  style={{ height: 160 }}
-                >
-                  {imagePreview ? (
-                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="flex flex-col items-center justify-center gap-2 text-gray-400">
-                      <Upload className="h-7 w-7 text-gray-400" />
-                      <p className="text-xs font-medium">Klik untuk upload foto / banner promo</p>
-                    </div>
-                  )}
-                </div>
-                <input
-                  ref={fileRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                />
-                {imagePreview && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setImageFile(null);
-                      setImagePreview(null);
-                      setForm((f) => ({ ...f, image_url: null }));
-                    }}
-                    className="mt-1.5 text-xs text-red-500 hover:underline flex items-center gap-1 font-medium"
-                  >
-                    <X className="h-3 w-3" /> Hapus gambar
-                  </button>
-                )}
-              </div>
+              {/* Image upload & Interactive Mobile-like Gallery Cropper */}
+              <ImageUploadField
+                label="Foto / Banner Promo"
+                helperText="Format: JPG, PNG, WEBP (Otomatis dikompres & dipotong rasio 16:9)"
+                previewUrl={imagePreview}
+                aspect={16 / 9}
+                aspectOptions={[
+                  { label: "16:9 (Lebar Banner)", value: 16 / 9 },
+                  { label: "4:3 (Standar)", value: 4 / 3 },
+                  { label: "1:1 (Persegi)", value: 1 },
+                ]}
+                heightClass="h-44"
+                onImageChange={(file, previewUrl) => {
+                  setImageFile(file);
+                  setImagePreview(previewUrl);
+                  setForm((f) => ({ ...f, image_url: previewUrl }));
+                }}
+                onImageRemove={() => {
+                  setImageFile(null);
+                  setImagePreview(null);
+                  setForm((f) => ({ ...f, image_url: null }));
+                }}
+              />
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">Nama Promo *</label>

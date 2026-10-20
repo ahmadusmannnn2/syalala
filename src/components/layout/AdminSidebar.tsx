@@ -17,6 +17,8 @@ import { cn } from "@/lib/utils";
 interface AdminSidebarProps {
   isOpen?: boolean;
   onClose?: () => void;
+  logoUrl?: string | null;
+  restaurantName?: string;
 }
 
 const navItems = [
@@ -27,7 +29,12 @@ const navItems = [
   { href: "/admin/home", label: "Halaman Home", icon: Home },
 ];
 
-export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
+export function AdminSidebar({
+  isOpen,
+  onClose,
+  logoUrl,
+  restaurantName = "Syalala",
+}: AdminSidebarProps) {
   const pathname = usePathname();
 
   const isActive = (href: string, exact?: boolean) => {
@@ -54,12 +61,22 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
       >
         {/* Brand Header */}
         <div className="h-16 flex items-center justify-between px-5 border-b border-gray-100 flex-shrink-0 bg-gradient-to-r from-[#e6203b]/5 to-transparent">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#e6203b] flex items-center justify-center text-white shadow-sm shadow-[#e6203b]/30">
-              <UtensilsCrossed className="h-4.5 w-4.5 stroke-[2.5]" />
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-white p-0.5 shadow-sm flex items-center justify-center text-[#e6203b] flex-shrink-0 overflow-hidden border border-red-100">
+              {logoUrl ? (
+                <img
+                  src={logoUrl}
+                  alt={restaurantName}
+                  className="w-full h-full object-cover rounded-[10px]"
+                />
+              ) : (
+                <UtensilsCrossed className="h-4.5 w-4.5 stroke-[2.5]" />
+              )}
             </div>
-            <div>
-              <p className="font-black text-gray-900 text-base leading-none">Syalala</p>
+            <div className="min-w-0">
+              <p className="font-black text-gray-900 text-base leading-none truncate">
+                {restaurantName}
+              </p>
               <p className="text-[10px] text-gray-400 font-semibold leading-none mt-1">
                 Admin Control Panel
               </p>

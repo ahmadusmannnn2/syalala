@@ -5,16 +5,16 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { createMenuItem, updateMenuItem, deleteMenuItem, toggleMenuAvailability } from "@/app/actions/menu";
 import { uploadMenuImage, deleteStorageFile } from "@/app/actions/upload";
-import { compressImage, cropAndCompressImage } from "@/lib/compressImage";
 import { generateSlug, formatRupiah } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { MenuItem, Category } from "@/types";
 import {
-  Plus, Edit2, Trash2, Upload, X, Star, ChefHat,
-  ShoppingBag, CheckCircle, XCircle, Search, Eye, MoveVertical,
+  Plus, Edit2, Trash2, X, Star, ChefHat,
+  ShoppingBag, CheckCircle, XCircle, Search, Eye,
 } from "lucide-react";
 
 const emptyForm = {
@@ -33,12 +33,9 @@ export default function AdminMenuPage() {
   const [form, setForm] = useState(emptyForm);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [rawImageSource, setRawImageSource] = useState<File | string | null>(null);
-  const [focalY, setFocalY] = useState<number>(0.5);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [previewModalUrl, setPreviewModalUrl] = useState<{ url: string; name: string } | null>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
 
   const supabase = createClient();
 
@@ -62,8 +59,6 @@ export default function AdminMenuPage() {
   const openCreate = () => {
     setEditItem(null);
     setForm(emptyForm);
-    setRawImageSource(null);
-    setFocalY(0.5);
     setImageFile(null);
     setImagePreview(null);
     setShowForm(true);
@@ -78,37 +73,9 @@ export default function AdminMenuPage() {
       is_best_seller: item.is_best_seller, is_chef_choice: item.is_chef_choice,
       supports_jumbo: item.supports_jumbo, order_number: item.order_number,
     });
-    setRawImageSource(item.image_url);
-    setFocalY(0.5);
     setImageFile(null);
     setImagePreview(item.image_url);
     setShowForm(true);
-  };
-
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setRawImageSource(file);
-    try {
-      const { file: cropped, previewUrl } = await cropAndCompressImage(file, focalY);
-      setImageFile(cropped);
-      setImagePreview(previewUrl);
-    } catch {
-      setImageFile(file);
-      setImagePreview(URL.createObjectURL(file));
-    }
-  };
-
-  const handleFocalChange = async (newY: number) => {
-    setFocalY(newY);
-    if (!rawImageSource) return;
-    try {
-      const { file: cropped, previewUrl } = await cropAndCompressImage(rawImageSource, newY);
-      setImageFile(cropped);
-      setImagePreview(previewUrl);
-    } catch (err) {
-      console.warn("Gagal crop gambar:", err);
-    }
   };
 
   const handleNameChange = (name: string) => {
@@ -340,115 +307,49 @@ export default function AdminMenuPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              {/* Image upload & Crop Position */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Foto Menu</label>
-                <div
-                  onClick={() => fileRef.current?.click()}
-                  className="relative cursor-pointer rounded-2xl border-2 border-dashed border-gray-200 hover:border-[#e6203b]/50 transition-colors overflow-hidden bg-gray-50 flex items-center justify-center"
-                  style={{ height: 160 }}
-                >
-                  {imagePreview ? (
-                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="flex flex-col items-center justify-center gap-2 text-gray-400">
-                      <Upload className="h-8 w-8 text-[#e6203b]/70" />
-                      <p className="text-xs font-semibold text-gray-600">Klik untuk upload foto menu</p>
-                      <p className="text-[10px] text-gray-400">Format: JPG, PNG, WEBP (Otomatis dikompres)</p>
-                    </div>
-                  )}
-                </div>
-                <input ref={fileRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+              {/* Image upload & Interactive Mobile-like Gallery Cropper */}
+              <div className="space-y-3">
+                <ImageUploadField
+                  label="Foto Menu"
+                  helperText="Format: JPG, PNG, WEBP (Otomatis dikompres & dipotong rasio 4:3)"
+                  previewUrl={imagePreview}
+                  aspect={4 / 3}
+                  aspectOptions={[
+                    { label: "4:3 (Standar Menu)", value: 4 / 3 },
+                    { label: "1:1 (Persegi)", value: 1 },
+                    { label: "16:9 (Lebar)", value: 16 / 9 },
+                  ]}
+                  heightClass="h-44"
+                  onImageChange={(file, previewUrl) => {
+                    setImageFile(file);
+                    setImagePreview(previewUrl);
+                    setForm((f) => ({ ...f, image_url: previewUrl }));
+                  }}
+                  onImageRemove={() => {
+                    setImageFile(null);
+                    setImagePreview(null);
+                    setForm((f) => ({ ...f, image_url: null }));
+                  }}
+                />
 
+                {/* Simulasi Tampilan Real di Menu Pelanggan */}
                 {imagePreview && (
-                  <div className="mt-3 space-y-3 p-3.5 bg-gray-50 border border-gray-200/80 rounded-2xl">
-                    {/* Header Crop */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-gray-800 flex items-center gap-1.5">
-                        <MoveVertical className="h-3.5 w-3.5 text-[#e6203b]" />
-                        Atur Posisi Fokus Gambar (Crop)
-                      </span>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setRawImageSource(null);
-                          setImageFile(null);
-                          setImagePreview(null);
-                          setForm((f) => ({ ...f, image_url: null }));
-                        }}
-                        className="text-xs text-red-500 hover:underline flex items-center gap-1 font-medium"
-                      >
-                        <X className="h-3 w-3" /> Hapus Foto
-                      </button>
-                    </div>
-
-                    {/* Tombol Cepat Posisi */}
-                    <div className="grid grid-cols-3 gap-1.5 bg-white p-1 rounded-xl border border-gray-200">
-                      <button
-                        type="button"
-                        onClick={() => handleFocalChange(0.1)}
-                        className={`py-1.5 px-2 rounded-lg text-xs font-semibold transition-all ${
-                          focalY <= 0.25 ? "bg-[#e6203b] text-white shadow-sm font-bold" : "text-gray-600 hover:bg-gray-100"
-                        }`}
-                      >
-                        ⬆️ Fokus Atas
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleFocalChange(0.5)}
-                        className={`py-1.5 px-2 rounded-lg text-xs font-semibold transition-all ${
-                          focalY > 0.25 && focalY < 0.75 ? "bg-[#e6203b] text-white shadow-sm font-bold" : "text-gray-600 hover:bg-gray-100"
-                        }`}
-                      >
-                        ⏺️ Tengah
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleFocalChange(0.9)}
-                        className={`py-1.5 px-2 rounded-lg text-xs font-semibold transition-all ${
-                          focalY >= 0.75 ? "bg-[#e6203b] text-white shadow-sm font-bold" : "text-gray-600 hover:bg-gray-100"
-                        }`}
-                      >
-                        ⬇️ Fokus Bawah
-                      </button>
-                    </div>
-
-                    {/* Slider Presisi Vertikal */}
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between text-[11px] text-gray-500">
-                        <span>Geser Posisi Vertikal</span>
-                        <span className="font-semibold text-gray-700">{Math.round(focalY * 100)}%</span>
+                  <div className="p-3 bg-gray-50 border border-gray-200/80 rounded-2xl">
+                    <p className="text-[11px] text-gray-500 mb-2 flex items-center gap-1 font-semibold">
+                      <Eye className="h-3.5 w-3.5 text-[#e6203b]" />
+                      Simulasi Tampilan di Menu Pelanggan (Rasio 4:3):
+                    </p>
+                    <div className="w-48 mx-auto rounded-2xl overflow-hidden shadow-md border border-red-200/60 bg-gradient-to-br from-[#e6203b] via-[#c41833] to-[#8b0f22] text-white">
+                      <div className="relative h-28 w-full overflow-hidden bg-black/10">
+                        <img
+                          src={imagePreview}
+                          alt="Simulasi"
+                          className="w-full h-full object-cover"
+                        />
                       </div>
-                      <input
-                        type="range"
-                        min={0}
-                        max={1}
-                        step={0.05}
-                        value={focalY}
-                        onChange={(e) => handleFocalChange(parseFloat(e.target.value))}
-                        className="w-full accent-[#e6203b] cursor-pointer"
-                      />
-                    </div>
-
-                    {/* Simulasi Tampilan Real di Menu Pelanggan */}
-                    <div className="pt-2 border-t border-gray-200/80">
-                      <p className="text-[11px] text-gray-500 mb-2 flex items-center gap-1 font-semibold">
-                        <Eye className="h-3.5 w-3.5 text-[#e6203b]" />
-                        Simulasi Tampilan di Menu Pelanggan (Rasio 4:3):
-                      </p>
-                      <div className="w-48 mx-auto rounded-2xl overflow-hidden shadow-md border border-red-200/60 bg-gradient-to-br from-[#e6203b] via-[#c41833] to-[#8b0f22] text-white">
-                        <div className="relative h-28 w-full overflow-hidden bg-black/10">
-                          <img
-                            src={imagePreview}
-                            alt="Simulasi"
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div className="p-2.5">
-                          <p className="font-bold text-xs truncate leading-tight">{form.name || "Nama Menu"}</p>
-                          <p className="font-black text-xs mt-1 text-white">{formatRupiah(form.price || 15000)}</p>
-                        </div>
+                      <div className="p-2.5">
+                        <p className="font-bold text-xs truncate leading-tight">{form.name || "Nama Menu"}</p>
+                        <p className="font-black text-xs mt-1 text-white">{formatRupiah(form.price || 15000)}</p>
                       </div>
                     </div>
                   </div>
