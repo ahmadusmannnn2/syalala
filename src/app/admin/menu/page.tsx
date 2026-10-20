@@ -136,12 +136,20 @@ export default function AdminMenuPage() {
   };
 
   const handleToggleAvail = async (item: MenuItem) => {
+    const nextState = !item.is_available;
+    // Optimistic UI update (instantly flips the switch)
+    setItems((prev) =>
+      prev.map((i) => (i.id === item.id ? { ...i, is_available: nextState } : i))
+    );
     try {
-      await toggleMenuAvailability(item.id, !item.is_available);
+      await toggleMenuAvailability(item.id, nextState);
+    } catch (err: unknown) {
+      // Revert if error
       setItems((prev) =>
-        prev.map((i) => (i.id === item.id ? { ...i, is_available: !i.is_available } : i))
+        prev.map((i) => (i.id === item.id ? { ...i, is_available: !nextState } : i))
       );
-    } catch {}
+      alert(`Gagal mengubah status: ${err instanceof Error ? err.message : "Terjadi kesalahan"}`);
+    }
   };
 
   const filtered = items.filter((i) =>
@@ -224,16 +232,32 @@ export default function AdminMenuPage() {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <button onClick={() => handleToggleAvail(item)} className="flex items-center gap-1">
-                        {item.is_available ? (
-                          <span className="flex items-center gap-1 text-xs text-green-600 font-medium bg-green-50 px-2 py-0.5 rounded-full">
-                            <CheckCircle className="h-3 w-3" /> Tersedia
-                          </span>
-                        ) : (
-                          <span className="flex items-center gap-1 text-xs text-red-500 font-medium bg-red-50 px-2 py-0.5 rounded-full">
-                            <XCircle className="h-3 w-3" /> Habis
-                          </span>
-                        )}
+                      <button
+                        type="button"
+                        onClick={() => handleToggleAvail(item)}
+                        className="inline-flex items-center gap-2.5 group cursor-pointer select-none focus:outline-none"
+                        title={item.is_available ? "Klik untuk ubah jadi Habis" : "Klik untuk ubah jadi Tersedia"}
+                      >
+                        {/* iOS Toggle Switch Slider */}
+                        <div
+                          className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
+                            item.is_available ? "bg-emerald-500" : "bg-gray-300"
+                          }`}
+                        >
+                          <span
+                            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition duration-200 ease-in-out ${
+                              item.is_available ? "translate-x-5" : "translate-x-0"
+                            }`}
+                          />
+                        </div>
+                        {/* Label */}
+                        <span
+                          className={`text-xs font-bold transition-colors ${
+                            item.is_available ? "text-emerald-600" : "text-gray-400"
+                          }`}
+                        >
+                          {item.is_available ? "Tersedia" : "Habis"}
+                        </span>
                       </button>
                     </td>
                     <td className="px-4 py-3 text-right">

@@ -111,12 +111,12 @@ export function Navbar({
         </div>
       </header>
 
-      {/* Floating Bottom Pill Navigation (iOS 27 Style — Berlaku untuk Semua Perangkat) */}
+      {/* Floating Bottom Pill Navigation (iOS 27 Style — Ergonomis & Nyaman Digunakan) */}
       <nav
         aria-label="Navigasi Utama"
-        className="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 pointer-events-auto select-none"
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-auto select-none"
       >
-        <div className="flex items-center gap-1 bg-white/85 backdrop-blur-2xl border border-white/60 shadow-[0_12px_40px_rgba(0,0,0,0.14)] rounded-full p-1.5 transition-all duration-300 hover:shadow-[0_16px_48px_rgba(0,0,0,0.2)]">
+        <div className="flex items-center gap-1.5 sm:gap-2 bg-white/90 backdrop-blur-2xl border border-white/70 shadow-[0_16px_50px_rgba(0,0,0,0.18)] rounded-full p-2 transition-all duration-300 hover:shadow-[0_20px_60px_rgba(0,0,0,0.22)]">
           {navItems.map((item) => {
             const active = isActive(item.href, item.exact);
             return (
@@ -124,19 +124,19 @@ export function Navbar({
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-1.5 px-4 py-2 rounded-full text-xs transition-all duration-200 active:scale-95",
+                  "flex items-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 rounded-full text-sm transition-all duration-200 active:scale-95",
                   active
-                    ? "bg-[#e6203b] text-white shadow-md shadow-[#e6203b]/30 font-bold"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-black/5 font-medium"
+                    ? "bg-[#e6203b] text-white shadow-lg shadow-[#e6203b]/35 font-bold"
+                    : "text-gray-700 hover:text-gray-950 hover:bg-black/5 font-semibold"
                 )}
               >
                 <item.icon
                   className={cn(
-                    "h-4 w-4 transition-transform",
-                    active ? "scale-110 stroke-[2.5]" : "stroke-[1.75]"
+                    "h-5 w-5 sm:h-5.5 sm:w-5.5 transition-transform",
+                    active ? "scale-110 stroke-[2.5]" : "stroke-[2]"
                   )}
                 />
-                <span>{item.label}</span>
+                <span className="tracking-tight">{item.label}</span>
               </Link>
             );
           })}
