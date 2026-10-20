@@ -80,6 +80,7 @@ export default function AdminHomePage() {
         whatsapp_link: settings.whatsapp_link,
         google_maps_link: settings.google_maps_link,
         instagram_link: settings.instagram_link,
+        tiktok_link: settings.tiktok_link,
         banner_image_url: bannerUrl,
         logo_url: logoUrl,
       });
@@ -213,6 +214,7 @@ export default function AdminHomePage() {
           {field("Link WhatsApp", "whatsapp_link", "url", "https://wa.me/628xxx")}
           {field("Link Google Maps (Lokasi)", "google_maps_link", "url", "https://maps.google.com/...")}
           {field("Link Instagram", "instagram_link", "url", "https://instagram.com/syalala")}
+          {field("Link TikTok", "tiktok_link", "url", "https://www.tiktok.com/@syalala")}
         </div>
 
         {/* Banner */}

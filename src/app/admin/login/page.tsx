@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
-import { UtensilsCrossed, Eye, EyeOff } from "lucide-react";
+import { UtensilsCrossed, Eye, EyeOff, CheckCircle2 } from "lucide-react";
 
 export default function AdminLoginPage() {
   return <LoginForm />;
@@ -16,30 +15,40 @@ function LoginForm() {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
+  const [success, setSuccess] = useState<string | null>(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setSuccess(null);
 
-    const supabase = createClient();
-    const { error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const supabase = createClient();
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (authError) {
-      setError("Email atau password salah. Silakan coba lagi.");
+      if (authError || !data?.session) {
+        setError(authError?.message || "Email atau password salah. Silakan coba lagi.");
+        setLoading(false);
+        return;
+      }
+
+      setSuccess("Login berhasil! Mengalihkan ke dashboard admin...");
+      // Force full navigation to guarantee cookie hydration in server components
+      setTimeout(() => {
+        window.location.href = "/admin";
+      }, 700);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Terjadi kesalahan saat login");
       setLoading(false);
-      return;
     }
-
-    router.push("/admin");
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#e6203b]/5 to-orange-50 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#e6203b]/5 via-white to-red-50/40 flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
@@ -58,6 +67,13 @@ function LoginForm() {
           {error && (
             <div className="mb-4 bg-red-50 border border-red-200 rounded-xl p-3">
               <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
+          {success && (
+            <div className="mb-4 bg-green-50 border border-green-200 rounded-xl p-3 flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
+              <p className="text-sm text-green-700 font-medium">{success}</p>
             </div>
           )}
 

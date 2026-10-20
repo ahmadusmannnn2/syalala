@@ -1,6 +1,5 @@
 import { Metadata } from "next";
-import Link from "next/link";
-import { Home, UtensilsCrossed } from "lucide-react";
+import { UtensilsCrossed } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import MenuClient from "./MenuClient";
 
@@ -44,13 +43,6 @@ export default async function MenuPage() {
             {items.length} menu lezat siap dinikmati
           </p>
         </div>
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-[#e6203b] bg-gray-100 hover:bg-red-50 px-3 py-1.5 rounded-full transition-colors active:scale-95"
-        >
-          <Home className="h-3.5 w-3.5" />
-          <span>Home</span>
-        </Link>
       </div>
 
       <MenuClient items={items} categories={categories} />

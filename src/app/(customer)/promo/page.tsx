@@ -28,19 +28,12 @@ export default async function PromoPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#e6203b] to-orange-500 text-white px-4 py-8 text-center relative">
-        <Link
-          href="/"
-          className="absolute left-4 top-4 inline-flex items-center gap-1.5 text-xs font-semibold text-white/90 hover:text-white bg-white/15 hover:bg-white/25 px-3 py-1.5 rounded-full transition-all active:scale-95"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          <span>Home</span>
-        </Link>
+      <div className="bg-gradient-to-br from-[#e6203b] via-[#c41833] to-[#8b0f22] text-white px-4 py-8 text-center relative shadow-sm">
         <div className="inline-flex items-center gap-2 mb-1">
           <Sparkles className="h-6 w-6 text-white" />
           <h1 className="text-2xl font-black">Promo Syalala</h1>
         </div>
-        <p className="text-sm text-white/80">
+        <p className="text-sm text-white/85">
           Hemat lebih banyak dengan promo spesial kami!
         </p>
       </div>
@@ -73,7 +66,7 @@ export default async function PromoPage() {
                 )}
 
                 {/* Header */}
-                <div className="bg-gradient-to-r from-[#e6203b] to-orange-500 p-4 text-white relative overflow-hidden">
+                <div className="bg-gradient-to-r from-[#e6203b] via-[#c41833] to-[#8b0f22] p-4 text-white relative overflow-hidden">
                   <div className="absolute right-0 top-0 h-full w-20 opacity-20">
                     <div className="h-24 w-24 rounded-full bg-white absolute -right-6 -top-6" />
                   </div>
@@ -164,7 +157,7 @@ export default async function PromoPage() {
                     {isLiveNow ? (
                       <Badge variant="promo">✓ Sedang Berlaku Sekarang</Badge>
                     ) : (
-                      <span className="text-xs bg-orange-50 text-orange-700 border border-orange-200 font-semibold px-2.5 py-0.5 rounded-full">
+                      <span className="text-xs bg-red-50 text-[#e6203b] border border-red-200 font-semibold px-2.5 py-0.5 rounded-full">
                         Promo Aktif (Sesuai Jadwal)
                       </span>
                     )}

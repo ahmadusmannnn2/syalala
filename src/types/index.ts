@@ -12,6 +12,7 @@ export interface RestaurantSettings {
   whatsapp_link: string | null;
   google_maps_link: string | null;
   instagram_link: string | null;
+  tiktok_link: string | null;
   banner_image_url: string | null;
   logo_url: string | null;
   created_at: string;

@@ -20,6 +20,7 @@ CREATE TABLE restaurant_settings (
     whatsapp_link TEXT,
     google_maps_link TEXT,
     instagram_link TEXT,
+    tiktok_link TEXT,
     banner_image_url TEXT,
     logo_url TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,

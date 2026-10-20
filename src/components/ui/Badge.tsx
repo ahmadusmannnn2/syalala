@@ -7,9 +7,9 @@ interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 
 const variantStyles = {
   "best-seller": "bg-[#e6203b] text-white",
-  "chef-choice": "bg-orange-500 text-white",
+  "chef-choice": "bg-[#8b0f22] text-white",
   habis: "bg-gray-400 text-white",
-  promo: "bg-green-500 text-white",
+  promo: "bg-green-600 text-white",
   default: "bg-gray-100 text-gray-700",
 };
 
