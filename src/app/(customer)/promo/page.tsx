@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Badge } from "@/components/ui/Badge";
 import { formatDate, formatRupiah, formatValidDays, isPromotionCurrentlyValid } from "@/lib/utils";
+import { ImageZoom } from "@/components/menu/ImageZoom";
 import { Gift, Clock, Calendar, CreditCard, Sparkles, ArrowLeft } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -54,15 +55,13 @@ export default async function PromoPage() {
                 key={promo.id}
                 className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 transition-all hover:shadow-md"
               >
-                {/* Promo Image (jika diupload admin) */}
+                {/* Promo Image (Klik untuk preview foto ukuran penuh) */}
                 {promo.image_url && (
-                  <div className="relative w-full h-48 bg-gray-100 overflow-hidden">
-                    <img
-                      src={promo.image_url}
-                      alt={promo.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
+                  <ImageZoom
+                    src={promo.image_url}
+                    alt={promo.name}
+                    className="w-full h-48 sm:h-60"
+                  />
                 )}
 
                 {/* Header */}

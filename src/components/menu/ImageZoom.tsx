@@ -37,7 +37,7 @@ export function ImageZoom({
     <>
       {/* Thumbnail with visible zoom hint */}
       <div
-        className={`relative ${className} bg-gradient-to-br from-[#e6203b]/10 to-orange-50 cursor-zoom-in group overflow-hidden select-none`}
+        className={`relative ${className} bg-gradient-to-br from-[#e6203b]/10 to-red-50/40 cursor-zoom-in group overflow-hidden select-none`}
         onClick={() => setOpen(true)}
         role="button"
         tabIndex={0}

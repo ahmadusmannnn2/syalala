@@ -219,17 +219,33 @@ export default function AdminPromosPage() {
             >
               <div className="flex items-start gap-3">
                 {promo.image_url ? (
-                  <div className="w-14 h-14 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0 border border-gray-200">
+                  <div
+                    onClick={() => openEdit(promo)}
+                    className="w-14 h-14 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0 border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity"
+                    title="Klik untuk mengedit promo"
+                  >
                     <img src={promo.image_url} alt={promo.name} className="w-full h-full object-cover" />
                   </div>
                 ) : (
-                  <div className={`mt-0.5 p-2.5 rounded-xl flex-shrink-0 ${promo.is_active ? "bg-green-50" : "bg-gray-100"}`}>
+                  <div
+                    onClick={() => openEdit(promo)}
+                    className={`mt-0.5 p-2.5 rounded-xl flex-shrink-0 cursor-pointer ${promo.is_active ? "bg-green-50" : "bg-gray-100"}`}
+                    title="Klik untuk mengedit promo"
+                  >
                     <Gift className={`h-5 w-5 ${promo.is_active ? "text-green-500" : "text-gray-400"}`} />
                   </div>
                 )}
                 <div>
-                  <p className="font-bold text-gray-900">{promo.name}</p>
-                  {promo.reward && <p className="text-sm text-gray-500">{promo.reward}</p>}
+                  <div
+                    onClick={() => openEdit(promo)}
+                    className="cursor-pointer group/title"
+                    title="Klik nama promo untuk mengedit"
+                  >
+                    <p className="font-bold text-gray-900 group-hover/title:text-[#e6203b] transition-colors">
+                      {promo.name}
+                    </p>
+                    {promo.reward && <p className="text-sm text-gray-500">{promo.reward}</p>}
+                  </div>
                   <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                     {promo.min_transaction && (
                       <span className="text-xs bg-gray-100 px-2.5 py-0.5 rounded-full text-gray-600 font-medium">
@@ -246,23 +262,27 @@ export default function AdminPromosPage() {
                   </div>
                 </div>
               </div>
-              <div className="flex gap-1 flex-shrink-0">
+              <div className="flex items-center gap-2.5 sm:gap-3 flex-shrink-0">
                 <button
                   type="button"
                   onClick={() => openEdit(promo)}
-                  className="p-2 rounded-xl hover:bg-blue-50 text-blue-500 transition-colors"
+                  className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-600 transition-all active:scale-95 flex items-center gap-1.5 text-xs font-semibold"
+                  title="Edit Promo"
                   aria-label="Edit promo"
                 >
-                  <Edit2 className="h-4 w-4" />
+                  <Edit2 className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Edit</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => handleDelete(promo)}
                   disabled={deleting === promo.id}
-                  className="p-2 rounded-xl hover:bg-red-50 text-red-400 transition-colors disabled:opacity-50"
+                  className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 transition-all active:scale-95 disabled:opacity-50 flex items-center gap-1.5 text-xs font-semibold"
+                  title="Hapus Promo"
                   aria-label="Hapus promo"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Hapus</span>
                 </button>
               </div>
             </div>

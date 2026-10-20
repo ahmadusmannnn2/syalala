@@ -107,7 +107,17 @@ export default function AdminCategoriesPage() {
             <tbody className="divide-y divide-gray-50">
               {items.map((cat) => (
                 <tr key={cat.id} className="hover:bg-gray-50/50">
-                  <td className="px-4 py-3 font-semibold text-gray-900">{cat.name}</td>
+                  <td className="px-4 py-3">
+                    <div
+                      onClick={() => openEdit(cat)}
+                      className="cursor-pointer group/title inline-block"
+                      title="Klik nama kategori untuk mengedit"
+                    >
+                      <span className="font-semibold text-gray-900 group-hover/title:text-[#e6203b] transition-colors">
+                        {cat.name}
+                      </span>
+                    </div>
+                  </td>
                   <td className="px-4 py-3 hidden sm:table-cell text-gray-400 text-xs font-mono">{cat.slug}</td>
                   <td className="px-4 py-3 text-gray-600">{cat.order_number}</td>
                   <td className="px-4 py-3">
@@ -122,13 +132,27 @@ export default function AdminCategoriesPage() {
                     )}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <button onClick={() => openEdit(cat)} className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-500">
+                    <div className="flex items-center justify-end gap-2.5 sm:gap-3">
+                      <button
+                        type="button"
+                        onClick={() => openEdit(cat)}
+                        className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-600 transition-all active:scale-95 flex items-center gap-1.5 text-xs font-semibold"
+                        title="Edit Kategori"
+                        aria-label="Edit kategori"
+                      >
                         <Edit2 className="h-3.5 w-3.5" />
+                        <span className="hidden sm:inline">Edit</span>
                       </button>
-                      <button onClick={() => handleDelete(cat)} disabled={deleting === cat.id}
-                        className="p-1.5 rounded-lg hover:bg-red-50 text-red-400 disabled:opacity-50">
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(cat)}
+                        disabled={deleting === cat.id}
+                        className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 transition-all active:scale-95 disabled:opacity-50 flex items-center gap-1.5 text-xs font-semibold"
+                        title="Hapus Kategori"
+                        aria-label="Hapus kategori"
+                      >
                         <Trash2 className="h-3.5 w-3.5" />
+                        <span className="hidden sm:inline">Hapus</span>
                       </button>
                     </div>
                   </td>

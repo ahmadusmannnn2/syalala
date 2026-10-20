@@ -19,7 +19,7 @@ export default async function CustomerLayout({
         logoUrl={settings?.logo_url ?? null}
         restaurantName={settings?.name ?? "Syalala"}
       />
-      <main className="min-h-screen pb-32">{children}</main>
+      <main className="min-h-screen">{children}</main>
       <Footer
         logoUrl={settings?.logo_url ?? null}
         restaurantName={settings?.name ?? "Syalala"}

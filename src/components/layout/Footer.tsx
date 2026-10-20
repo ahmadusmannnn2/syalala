@@ -28,7 +28,7 @@ export function Footer({
   const maps = mapsLink || "https://maps.google.com";
 
   return (
-    <footer className="bg-gradient-to-b from-[#e6203b] via-[#c41833] to-[#8b0f22] text-white mt-12 pb-24 shadow-inner">
+    <footer className="bg-gradient-to-b from-[#e6203b] via-[#c41833] to-[#8b0f22] text-white mt-0 pb-28 shadow-inner">
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="flex flex-col items-center text-center gap-4">
           {/* Brand Header with Logo like Navbar */}
