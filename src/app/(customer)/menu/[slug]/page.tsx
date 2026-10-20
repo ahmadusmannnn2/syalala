@@ -100,7 +100,7 @@ export default async function MenuDetailPage({ params }: Props) {
           {item.image_url ? (
             <ImageZoom src={item.image_url} alt={item.name} />
           ) : (
-            <div className="relative w-full h-72 bg-gradient-to-br from-[#e6203b]/10 to-orange-50 flex flex-col items-center justify-center gap-2">
+            <div className="relative w-full h-72 bg-gradient-to-br from-[#e6203b]/10 to-red-50/40 flex flex-col items-center justify-center gap-2">
               <div className="w-16 h-16 rounded-full bg-[#e6203b]/15 flex items-center justify-center">
                 <UtensilsCrossed className="h-7 w-7 text-[#e6203b]/60" />
               </div>

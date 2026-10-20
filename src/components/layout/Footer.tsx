@@ -21,6 +21,12 @@ export function Footer({
   tiktokLink,
   mapsLink,
 }: FooterProps) {
+  // Fallback links agar ikon di footer selalu tampil
+  const wa = waLink || "https://wa.me/628123456789";
+  const ig = igLink || "https://instagram.com/syalalamiesosis";
+  const tiktok = tiktokLink || "https://www.tiktok.com/@syalalamiesosis";
+  const maps = mapsLink || "https://maps.google.com";
+
   return (
     <footer className="bg-gradient-to-b from-[#e6203b] via-[#c41833] to-[#8b0f22] text-white mt-12 pb-24 shadow-inner">
       <div className="max-w-2xl mx-auto px-4 py-8">
@@ -47,52 +53,47 @@ export function Footer({
 
           <p className="text-white/80 text-xs sm:text-sm max-w-xs">{tagline}</p>
 
-          {/* Social & Contact Icons */}
+          {/* Social & Contact Icons (Selalu Tampil) */}
           <div className="flex items-center gap-2.5">
-            {igLink && (
-              <a
-                href={igLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-white/15 hover:bg-white hover:text-[#e6203b] text-white flex items-center justify-center transition-all duration-200 active:scale-95 shadow-sm border border-white/20"
-                aria-label="Instagram"
-              >
-                <InstagramIcon className="h-4.5 w-4.5" />
-              </a>
-            )}
-            {tiktokLink && (
-              <a
-                href={tiktokLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-white/15 hover:bg-white hover:text-black text-white flex items-center justify-center transition-all duration-200 active:scale-95 shadow-sm border border-white/20"
-                aria-label="TikTok"
-              >
-                <TikTokIcon className="h-4.5 w-4.5" />
-              </a>
-            )}
-            {waLink && (
-              <a
-                href={waLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-white/15 hover:bg-white hover:text-[#25D366] text-white flex items-center justify-center transition-all duration-200 active:scale-95 shadow-sm border border-white/20"
-                aria-label="WhatsApp"
-              >
-                <MessageCircle className="h-4.5 w-4.5" />
-              </a>
-            )}
-            {mapsLink && (
-              <a
-                href={mapsLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-white/15 hover:bg-white hover:text-[#e6203b] text-white flex items-center justify-center transition-all duration-200 active:scale-95 shadow-sm border border-white/20"
-                aria-label="Google Maps"
-              >
-                <MapPin className="h-4.5 w-4.5" />
-              </a>
-            )}
+            <a
+              href={ig}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-9 h-9 rounded-full bg-white/15 hover:bg-white hover:text-[#e6203b] text-white flex items-center justify-center transition-all duration-200 active:scale-95 shadow-sm border border-white/20"
+              aria-label="Instagram"
+            >
+              <InstagramIcon className="h-4.5 w-4.5" />
+            </a>
+
+            <a
+              href={tiktok}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-9 h-9 rounded-full bg-white/15 hover:bg-white hover:text-black text-white flex items-center justify-center transition-all duration-200 active:scale-95 shadow-sm border border-white/20"
+              aria-label="TikTok"
+            >
+              <TikTokIcon className="h-4.5 w-4.5" />
+            </a>
+
+            <a
+              href={wa}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-9 h-9 rounded-full bg-white/15 hover:bg-white hover:text-[#25D366] text-white flex items-center justify-center transition-all duration-200 active:scale-95 shadow-sm border border-white/20"
+              aria-label="WhatsApp"
+            >
+              <MessageCircle className="h-4.5 w-4.5" />
+            </a>
+
+            <a
+              href={maps}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-9 h-9 rounded-full bg-white/15 hover:bg-white hover:text-[#e6203b] text-white flex items-center justify-center transition-all duration-200 active:scale-95 shadow-sm border border-white/20"
+              aria-label="Google Maps"
+            >
+              <MapPin className="h-4.5 w-4.5" />
+            </a>
           </div>
 
           <p className="text-white/70 text-xs mt-1">
