@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { updateRestaurantSettings } from "@/app/actions/home";
 import { uploadBannerImage, uploadLogoImage } from "@/app/actions/upload";
+import { compressImage } from "@/lib/compressImage";
 import { Button } from "@/components/ui/Button";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { RestaurantSettings } from "@/types";
@@ -33,18 +34,30 @@ export default function AdminHomePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleBannerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBannerChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setBannerFile(file);
-    setBannerPreview(URL.createObjectURL(file));
+    try {
+      const compressed = await compressImage(file, 1920, 1080, 0.85);
+      setBannerFile(compressed);
+      setBannerPreview(URL.createObjectURL(compressed));
+    } catch {
+      setBannerFile(file);
+      setBannerPreview(URL.createObjectURL(file));
+    }
   };
 
-  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setLogoFile(file);
-    setLogoPreview(URL.createObjectURL(file));
+    try {
+      const compressed = await compressImage(file, 800, 800, 0.9);
+      setLogoFile(compressed);
+      setLogoPreview(URL.createObjectURL(compressed));
+    } catch {
+      setLogoFile(file);
+      setLogoPreview(URL.createObjectURL(file));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

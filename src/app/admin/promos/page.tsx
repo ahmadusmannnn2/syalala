@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { createPromotion, updatePromotion, deletePromotion } from "@/app/actions/promos";
 import { uploadPromoImage, deleteStorageFile } from "@/app/actions/upload";
 import { formatRupiah } from "@/lib/utils";
+import { compressImage } from "@/lib/compressImage";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
@@ -96,11 +97,17 @@ export default function AdminPromosPage() {
     setShowForm(true);
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setImageFile(file);
-    setImagePreview(URL.createObjectURL(file));
+    try {
+      const compressed = await compressImage(file);
+      setImageFile(compressed);
+      setImagePreview(URL.createObjectURL(compressed));
+    } catch {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
   };
 
   const toggleDay = (day: string) => {
@@ -124,6 +131,8 @@ export default function AdminPromosPage() {
         if (editItem?.image_url && editItem.image_url !== imageUrl) {
           await deleteStorageFile(editItem.image_url);
         }
+      } else if (form.image_url === null && editItem?.image_url) {
+        await deleteStorageFile(editItem.image_url);
       }
 
       const payload = {

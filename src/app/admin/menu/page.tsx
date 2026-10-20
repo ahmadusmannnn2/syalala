@@ -5,6 +5,7 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { createMenuItem, updateMenuItem, deleteMenuItem, toggleMenuAvailability } from "@/app/actions/menu";
 import { uploadMenuImage, deleteStorageFile } from "@/app/actions/upload";
+import { compressImage } from "@/lib/compressImage";
 import { generateSlug, formatRupiah } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -78,11 +79,17 @@ export default function AdminMenuPage() {
     setShowForm(true);
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setImageFile(file);
-    setImagePreview(URL.createObjectURL(file));
+    try {
+      const compressed = await compressImage(file);
+      setImageFile(compressed);
+      setImagePreview(URL.createObjectURL(compressed));
+    } catch {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
   };
 
   const handleNameChange = (name: string) => {
