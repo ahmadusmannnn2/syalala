@@ -20,13 +20,16 @@ export function HeroSection({ settings }: HeroSectionProps) {
   const tagline = settings?.tagline || "Since 2014 #syalalamiesosis";
   const heroText = settings?.hero_text || "Open=10.00 Close=20.00";
 
-  // Fallback link jika belum diisi admin di database
+  // Filter teks agar tidak menampilkan "nikmati..."
+  const isNikmatiText = (t: string) => t.toLowerCase().includes("nikmati");
+  const displayTagline = isNikmatiText(tagline) ? "Since 2014 #syalalamiesosis" : tagline;
+  const displayHeroText = isNikmatiText(heroText) ? null : heroText;
+
+  // Fallback link medsos
   const waLink = settings?.whatsapp_link || "https://wa.me/628123456789";
   const mapsLink = settings?.google_maps_link || "https://maps.google.com";
   const igLink = settings?.instagram_link || "https://instagram.com/syalalamiesosis";
   const tiktokLink = settings?.tiktok_link || "https://www.tiktok.com/@syalalamiesosis";
-
-  const handleName = name.toLowerCase().replace(/\s+/g, "");
 
   return (
     <section className="relative bg-gray-50 pb-4">
@@ -54,18 +57,13 @@ export function HeroSection({ settings }: HeroSectionProps) {
             )}
           </div>
 
-          {/* Title / Handle (@syalalamiesosis) */}
-          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white drop-shadow-sm">
-            @{handleName}
-          </h1>
-
           {/* Tagline */}
-          <p className="text-xs sm:text-sm text-white/95 font-medium max-w-xs mx-auto mt-1 leading-snug">
-            {tagline}
+          <p className="text-sm sm:text-base text-white/95 font-bold max-w-xs mx-auto leading-snug">
+            {displayTagline}
           </p>
 
-          {/* Ikon Sosial & Kontak yang bisa diklik (Selalu Tampil) */}
-          <div className="flex items-center justify-center gap-2.5 mt-3">
+          {/* Ikon Sosial & Kontak yang bisa diklik */}
+          <div className="flex items-center justify-center gap-2.5 mt-3.5">
             <a
               href={igLink}
               target="_blank"
@@ -108,18 +106,17 @@ export function HeroSection({ settings }: HeroSectionProps) {
           </div>
 
           {/* Jam Operasional / Info */}
-          {heroText && (
-            <div className="inline-flex items-center gap-1.5 bg-black/25 backdrop-blur-sm px-3.5 py-1 rounded-full text-xs font-semibold text-white/95 mt-2.5 border border-white/10 shadow-inner">
+          {displayHeroText && (
+            <div className="inline-flex items-center gap-1.5 bg-black/25 backdrop-blur-sm px-3.5 py-1 rounded-full text-xs font-semibold text-white/95 mt-3 border border-white/10 shadow-inner">
               <Clock className="h-3.5 w-3.5 text-white/90" />
-              <span>{heroText}</span>
+              <span>{displayHeroText}</span>
             </div>
           )}
         </div>
       </div>
 
-      {/* Main Linktree Container */}
-      <div className="relative max-w-md mx-auto px-4 -mt-7 z-10 space-y-3">
-        {/* BIG FEATURED CARD: LIHAT MENU SYALALA DI SINI */}
+      {/* Main Container: BIG FEATURED CARD */}
+      <div className="relative max-w-md mx-auto px-4 -mt-7 z-10">
         <Link
           href="/menu"
           prefetch={true}
@@ -159,101 +156,6 @@ export function HeroSection({ settings }: HeroSectionProps) {
             </div>
           </div>
         </Link>
-
-        {/* STACKED LINKTREE BUTTONS (Selalu Tampil) */}
-        <div className="space-y-2.5">
-          {/* Instagram */}
-          <a
-            href={igLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex items-center justify-between p-3.5 bg-white hover:bg-gray-50 border border-gray-100 shadow-sm hover:shadow-md rounded-2xl transition-all duration-200 active:scale-[0.98]"
-          >
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform">
-                <InstagramIcon className="h-5 w-5" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-bold text-gray-900 group-hover:text-[#e6203b] transition-colors leading-tight">
-                  Follow Instagram
-                </p>
-                <p className="text-xs text-gray-400 truncate">
-                  Foto menu & update harian kami
-                </p>
-              </div>
-            </div>
-            <ChevronRight className="h-4.5 w-4.5 text-gray-400 group-hover:text-[#e6203b] group-hover:translate-x-1 transition-all flex-shrink-0" />
-          </a>
-
-          {/* TikTok */}
-          <a
-            href={tiktokLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex items-center justify-between p-3.5 bg-white hover:bg-gray-50 border border-gray-100 shadow-sm hover:shadow-md rounded-2xl transition-all duration-200 active:scale-[0.98]"
-          >
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-black text-white flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform">
-                <TikTokIcon className="h-5 w-5" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-bold text-gray-900 group-hover:text-[#e6203b] transition-colors leading-tight">
-                  Follow TikTok
-                </p>
-                <p className="text-xs text-gray-400 truncate">
-                  Video review & keseruan dapur
-                </p>
-              </div>
-            </div>
-            <ChevronRight className="h-4.5 w-4.5 text-gray-400 group-hover:text-[#e6203b] group-hover:translate-x-1 transition-all flex-shrink-0" />
-          </a>
-
-          {/* WhatsApp */}
-          <a
-            href={waLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex items-center justify-between p-3.5 bg-white hover:bg-gray-50 border border-gray-100 shadow-sm hover:shadow-md rounded-2xl transition-all duration-200 active:scale-[0.98]"
-          >
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-[#25D366] text-white flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform">
-                <MessageCircle className="h-5 w-5" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-bold text-gray-900 group-hover:text-[#e6203b] transition-colors leading-tight">
-                  Pesan via WhatsApp
-                </p>
-                <p className="text-xs text-gray-400 truncate">
-                  Chat langsung untuk tanya & order
-                </p>
-              </div>
-            </div>
-            <ChevronRight className="h-4.5 w-4.5 text-gray-400 group-hover:text-[#e6203b] group-hover:translate-x-1 transition-all flex-shrink-0" />
-          </a>
-
-          {/* Google Maps / Lokasi */}
-          <a
-            href={mapsLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex items-center justify-between p-3.5 bg-white hover:bg-gray-50 border border-gray-100 shadow-sm hover:shadow-md rounded-2xl transition-all duration-200 active:scale-[0.98]"
-          >
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-[#e6203b] text-white flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform">
-                <MapPin className="h-5 w-5" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-bold text-gray-900 group-hover:text-[#e6203b] transition-colors leading-tight">
-                  Petunjuk Arah & Lokasi
-                </p>
-                <p className="text-xs text-gray-400 truncate">
-                  Buka Google Maps ke outlet kami
-                </p>
-              </div>
-            </div>
-            <ChevronRight className="h-4.5 w-4.5 text-gray-400 group-hover:text-[#e6203b] group-hover:translate-x-1 transition-all flex-shrink-0" />
-          </a>
-        </div>
       </div>
     </section>
   );

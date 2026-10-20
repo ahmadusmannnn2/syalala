@@ -17,6 +17,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
 
+  // Halaman login tidak boleh menampilkan sidebar atau header admin
+  if (pathname === "/admin/login") {
+    return <>{children}</>;
+  }
+
   const title =
     Object.entries(titleMap).find(([key]) =>
       key === "/admin" ? pathname === "/admin" : pathname.startsWith(key)

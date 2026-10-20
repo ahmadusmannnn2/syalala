@@ -42,22 +42,26 @@ export function Navbar({
   };
 
   const isHome = pathname === "/";
+  // Tentukan tujuan tombol kembali yang pasti & bebas bug:
+  // Jika di halaman detail menu (/menu/...), kembali ke /menu
+  // Jika di halaman /menu atau /promo, kembali ke beranda (/)
+  const backHref = pathname.startsWith("/menu/") ? "/menu" : "/";
 
   return (
     <>
       {/* Top Navbar Header */}
       <header className="sticky top-0 z-40 bg-[#e6203b] text-white shadow-md transition-all">
         <div className="relative max-w-2xl mx-auto px-4 h-14 flex items-center">
-          {/* Back button (hanya tampil di halaman non-home) */}
+          {/* Back button seragam & konsisten di header atas */}
           {!isHome && (
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="mr-2 p-1.5 text-white/90 hover:text-white hover:bg-white/10 rounded-xl transition-all active:scale-95"
+            <Link
+              href={backHref}
+              prefetch={true}
+              className="mr-2 p-1.5 text-white/90 hover:text-white hover:bg-white/10 rounded-xl transition-all active:scale-95 flex items-center justify-center flex-shrink-0"
               aria-label="Kembali"
             >
               <ArrowLeft className="h-5 w-5" />
-            </button>
+            </Link>
           )}
 
           {/* Interactive Logo & Brand Text Container */}

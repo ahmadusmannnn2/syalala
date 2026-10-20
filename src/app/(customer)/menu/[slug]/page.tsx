@@ -2,8 +2,6 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
-  ArrowLeft,
-  Home,
   Star,
   ChefHat,
   ShoppingBag,
@@ -75,25 +73,7 @@ export default async function MenuDetailPage({ params }: Props) {
   );
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navigation Bar Header */}
-      <div className="sticky top-14 z-30 bg-white/95 backdrop-blur-md border-b border-gray-100 px-4 py-3 max-w-2xl mx-auto flex items-center justify-between">
-        <Link
-          href="/menu"
-          className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 hover:text-[#e6203b] transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Daftar Menu
-        </Link>
-        <Link
-          href="/"
-          className="flex items-center gap-1 text-xs font-semibold text-gray-500 hover:text-[#e6203b] bg-gray-100 hover:bg-red-50 px-3 py-1.5 rounded-full transition-colors"
-        >
-          <Home className="h-3.5 w-3.5" />
-          Home
-        </Link>
-      </div>
-
+    <div className="min-h-screen bg-gray-50 pb-8">
       <div className="max-w-2xl mx-auto">
         {/* Image / Lightbox */}
         <div className="relative w-full">
