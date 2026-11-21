@@ -5,14 +5,17 @@ import {
   Star,
   ChefHat,
   ShoppingBag,
-  MessageCircle,
   Tag,
   UtensilsCrossed,
+  ArrowLeft,
+  Info,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Badge } from "@/components/ui/Badge";
 import { ImageZoom } from "@/components/menu/ImageZoom";
 import { SpicinessLevelSelector } from "@/components/menu/SpicinessLevelSelector";
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
+import { parseWhatsAppLink, buildWhatsAppUrl } from "@/lib/whatsapp";
 import { formatRupiah } from "@/lib/utils";
 
 interface Props {
@@ -58,7 +61,6 @@ export default async function MenuDetailPage({ params }: Props) {
 
   const item = itemRes.data;
   const settings = settingsRes.data;
-  const waLink = settings?.whatsapp_link ?? "https://wa.me/";
   const jumboFee = settings?.jumbo_size_upgrade_fee ?? 4000;
   const taxStatus = settings?.tax_status ?? "Belum termasuk PPN 10%";
 
@@ -68,19 +70,32 @@ export default async function MenuDetailPage({ params }: Props) {
     item.slug.toLowerCase().includes("mie") ||
     item.name.toLowerCase().includes("mie");
 
-  const waMessage = encodeURIComponent(
-    `Halo Syalala! Saya tertarik dengan menu *${item.name}* (${formatRupiah(item.price)}). Apakah masih tersedia?`
+  const parsedWa = parseWhatsAppLink(settings?.whatsapp_link || "6281325350008");
+  const waTarget = buildWhatsAppUrl(
+    parsedWa.phone || "6281325350008",
+    `Halo Syalala! Saya ingin memesan menu *${item.name}* (${formatRupiah(item.price)}). Apakah saat ini tersedia?`
   );
 
   return (
-    <div className="w-full pb-4">
-      <div className="max-w-2xl mx-auto">
-        {/* Image / Lightbox */}
+    <div className="w-full pb-8 pt-2">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6">
+        {/* Tombol Kembali */}
+        <div className="mb-3">
+          <Link
+            href="/menu"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-[#e6203b] transition-colors py-1"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span>Kembali ke Daftar Menu</span>
+          </Link>
+        </div>
+
+        {/* Image / Lightbox Showcase */}
         <div className="relative w-full">
           {item.image_url ? (
-            <ImageZoom src={item.image_url} alt={item.name} />
+            <ImageZoom src={item.image_url} alt={item.name} fitMode="detail" />
           ) : (
-            <div className="relative w-full h-72 bg-gradient-to-br from-[#e6203b]/10 to-red-50/40 flex flex-col items-center justify-center gap-2">
+            <div className="relative w-full h-80 sm:h-96 rounded-3xl bg-gradient-to-br from-[#e6203b]/10 to-red-50/40 flex flex-col items-center justify-center gap-2 border border-red-100 shadow-sm">
               <div className="w-16 h-16 rounded-full bg-[#e6203b]/15 flex items-center justify-center">
                 <UtensilsCrossed className="h-7 w-7 text-[#e6203b]/60" />
               </div>
@@ -90,7 +105,7 @@ export default async function MenuDetailPage({ params }: Props) {
 
           {/* Status habis overlay */}
           {!item.is_available && (
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center z-10">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] rounded-3xl flex items-center justify-center z-10 pointer-events-none">
               <span className="bg-red-600 text-white font-bold text-base px-6 py-2 rounded-full shadow-lg">
                 Sedang Habis
               </span>
@@ -99,11 +114,11 @@ export default async function MenuDetailPage({ params }: Props) {
         </div>
 
         {/* Content */}
-        <div className="px-5 py-6 space-y-5">
+        <div className="py-6 space-y-5">
           {/* Category & Name */}
           <div>
             {item.category && (
-              <div className="flex items-center gap-1.5 text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wider">
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wider">
                 <Tag className="h-3.5 w-3.5" />
                 <span>{(item.category as { name: string }).name}</span>
               </div>
@@ -126,6 +141,23 @@ export default async function MenuDetailPage({ params }: Props) {
               {!item.is_available && <Badge variant="habis">Habis</Badge>}
             </div>
           </div>
+
+          {/* Deskripsi Menu */}
+          {item.description ? (
+            <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-5 shadow-xs space-y-1.5">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-[#e6203b] uppercase tracking-wider">
+                <Info className="h-3.5 w-3.5" />
+                <span>Deskripsi Menu</span>
+              </div>
+              <p className="text-sm sm:text-base text-gray-700 leading-relaxed font-normal">
+                {item.description}
+              </p>
+            </div>
+          ) : (
+            <div className="bg-gray-50/70 rounded-2xl border border-dashed border-gray-200 p-4 text-xs text-gray-400 italic">
+              Deskripsi menu belum ditambahkan.
+            </div>
+          )}
 
           {/* Spiciness Level Selector (Khusus Kategori Mie) */}
           {isMieCategory ? (
@@ -163,24 +195,22 @@ export default async function MenuDetailPage({ params }: Props) {
             </>
           )}
 
-          {/* Fitur Order Online (Disembunyikan sementara untuk pengembangan berikutnya) */}
-          {/*
+          {/* Tombol Pesan / Kontak WhatsApp */}
           <div className="pt-2">
             <a
-              href={`${waLink}?text=${waMessage}`}
+              href={item.is_available ? waTarget : undefined}
               target="_blank"
               rel="noopener noreferrer"
-              className={`w-full flex items-center justify-center gap-2.5 py-4 rounded-2xl font-bold text-base transition-all duration-200 active:scale-95 shadow-md ${
+              className={`w-full flex items-center justify-center gap-2.5 py-4 rounded-2xl font-bold text-sm sm:text-base transition-all duration-200 active:scale-95 shadow-md ${
                 item.is_available
-                  ? "bg-green-600 hover:bg-green-700 text-white shadow-green-600/25"
-                  : "bg-gray-200 text-gray-400 cursor-not-allowed pointer-events-none"
+                  ? "bg-[#25D366] hover:bg-emerald-600 text-white shadow-emerald-600/25 cursor-pointer"
+                  : "bg-gray-200 text-gray-400 cursor-not-allowed pointer-events-none shadow-none"
               }`}
             >
-              <MessageCircle className="h-5 w-5" />
-              {item.is_available ? "Order via WhatsApp" : "Sedang Tidak Tersedia"}
+              <WhatsAppIcon className="h-5 w-5" />
+              <span>{item.is_available ? "Pesan / Tanya Menu via WhatsApp" : "Menu Sedang Habis"}</span>
             </a>
           </div>
-          */}
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { updateRestaurantSettings } from "@/app/actions/home";
 import { uploadBannerImage, uploadLogoImage } from "@/app/actions/upload";
@@ -10,7 +11,7 @@ import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import { parseWhatsAppLink, buildWhatsAppUrl } from "@/lib/whatsapp";
 import { RestaurantSettings } from "@/types";
-import { Save, UtensilsCrossed, ExternalLink, MessageSquare } from "lucide-react";
+import { Save, UtensilsCrossed, ExternalLink, MessageSquare, PanelBottom, ArrowRight } from "lucide-react";
 
 export default function AdminHomePage() {
   const [settings, setSettings] = useState<RestaurantSettings | null>(null);
@@ -288,6 +289,28 @@ export default function AdminHomePage() {
               setSettings((s) => (s ? { ...s, banner_image_url: null } : s));
             }}
           />
+        </div>
+
+        {/* Shortcut Pengaturan Footer */}
+        <div className="bg-gradient-to-r from-red-50/50 via-white to-orange-50/40 rounded-2xl border border-red-100 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#e6203b]/10 text-[#e6203b] flex items-center justify-center flex-shrink-0">
+              <PanelBottom className="h-5 w-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-gray-900 text-sm">Pengaturan Tampilan Footer</h4>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Edit teks tagline, alamat, catatan kaki, dan visibilitas tombol kontak di footer.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/admin/footer"
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-white hover:bg-gray-50 text-[#e6203b] border border-red-200 rounded-xl text-xs font-bold transition-colors shadow-xs flex-shrink-0"
+          >
+            <span>Buka Editor Footer</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
         </div>
 
         <Button type="submit" size="lg" className="w-full" isLoading={saving}>

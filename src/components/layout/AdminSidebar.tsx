@@ -8,6 +8,7 @@ import {
   Tag,
   Megaphone,
   Home,
+  PanelBottom,
   X,
   ChevronRight,
   ExternalLink,
@@ -27,6 +28,7 @@ const navItems = [
   { href: "/admin/categories", label: "Kategori", icon: Tag },
   { href: "/admin/promos", label: "Promo & Diskon", icon: Megaphone },
   { href: "/admin/home", label: "Halaman Home", icon: Home },
+  { href: "/admin/footer", label: "Kelola Footer", icon: PanelBottom },
 ];
 
 export function AdminSidebar({

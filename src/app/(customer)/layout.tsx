@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { getFooterConfig } from "@/app/actions/footer";
 
 export default async function CustomerLayout({
   children,
@@ -8,10 +9,13 @@ export default async function CustomerLayout({
   children: React.ReactNode;
 }) {
   const supabase = await createClient();
-  const { data: settings } = await supabase
-    .from("restaurant_settings")
-    .select("logo_url, name, tagline, whatsapp_link, instagram_link, tiktok_link, google_maps_link")
-    .single();
+  const [{ data: settings }, footerConfig] = await Promise.all([
+    supabase
+      .from("restaurant_settings")
+      .select("logo_url, name, tagline, whatsapp_link, instagram_link, tiktok_link, google_maps_link")
+      .single(),
+    getFooterConfig(),
+  ]);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -28,6 +32,7 @@ export default async function CustomerLayout({
         igLink={settings?.instagram_link ?? null}
         tiktokLink={settings?.tiktok_link ?? null}
         mapsLink={settings?.google_maps_link ?? null}
+        footerConfig={footerConfig}
       />
     </div>
   );
