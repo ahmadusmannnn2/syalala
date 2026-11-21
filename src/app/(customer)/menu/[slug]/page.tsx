@@ -14,8 +14,6 @@ import { createClient } from "@/lib/supabase/server";
 import { Badge } from "@/components/ui/Badge";
 import { ImageZoom } from "@/components/menu/ImageZoom";
 import { SpicinessLevelSelector } from "@/components/menu/SpicinessLevelSelector";
-import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
-import { parseWhatsAppLink, buildWhatsAppUrl } from "@/lib/whatsapp";
 import { formatRupiah } from "@/lib/utils";
 
 interface Props {
@@ -53,7 +51,7 @@ export default async function MenuDetailPage({ params }: Props) {
       .single(),
     supabase
       .from("restaurant_settings")
-      .select("whatsapp_link, jumbo_size_upgrade_fee, tax_status")
+      .select("jumbo_size_upgrade_fee, tax_status")
       .single(),
   ]);
 
@@ -69,12 +67,6 @@ export default async function MenuDetailPage({ params }: Props) {
     categoryName.includes("mie") ||
     item.slug.toLowerCase().includes("mie") ||
     item.name.toLowerCase().includes("mie");
-
-  const parsedWa = parseWhatsAppLink(settings?.whatsapp_link || "6281325350008");
-  const waTarget = buildWhatsAppUrl(
-    parsedWa.phone || "6281325350008",
-    `Halo Syalala! Saya ingin memesan menu *${item.name}* (${formatRupiah(item.price)}). Apakah saat ini tersedia?`
-  );
 
   return (
     <div className="w-full pb-8 pt-2">
@@ -195,22 +187,6 @@ export default async function MenuDetailPage({ params }: Props) {
             </>
           )}
 
-          {/* Tombol Pesan / Kontak WhatsApp */}
-          <div className="pt-2">
-            <a
-              href={item.is_available ? waTarget : undefined}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`w-full flex items-center justify-center gap-2.5 py-4 rounded-2xl font-bold text-sm sm:text-base transition-all duration-200 active:scale-95 shadow-md ${
-                item.is_available
-                  ? "bg-[#25D366] hover:bg-emerald-600 text-white shadow-emerald-600/25 cursor-pointer"
-                  : "bg-gray-200 text-gray-400 cursor-not-allowed pointer-events-none shadow-none"
-              }`}
-            >
-              <WhatsAppIcon className="h-5 w-5" />
-              <span>{item.is_available ? "Pesan / Tanya Menu via WhatsApp" : "Menu Sedang Habis"}</span>
-            </a>
-          </div>
         </div>
       </div>
     </div>

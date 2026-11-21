@@ -43,12 +43,13 @@ export function ImageZoom({
             className || ""
           }`}
           onClick={() => setOpen(true)}
+          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(true); } }}
           role="button"
           tabIndex={0}
           aria-label={`Lihat foto ${alt} ukuran penuh`}
         >
           {/* Ambient blurred backdrop for luxurious depth */}
-          <div className="absolute inset-0 -z-0 overflow-hidden pointer-events-none opacity-20">
+          <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-20">
             <img
               src={src}
               alt=""
@@ -124,6 +125,7 @@ export function ImageZoom({
       <div
         className={`relative ${className || defaultWrapperClass} bg-neutral-900/5 cursor-zoom-in group overflow-hidden select-none`}
         onClick={() => setOpen(true)}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(true); } }}
         role="button"
         tabIndex={0}
         aria-label={`Lihat foto ${alt} ukuran penuh`}

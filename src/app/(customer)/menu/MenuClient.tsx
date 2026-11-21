@@ -18,7 +18,7 @@ export default function MenuClient({ items, categories }: MenuClientProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
-    return items.filter((item) => {
+    const base = items.filter((item) => {
       const matchCat = selectedCategory ? item.category_id === selectedCategory : true;
       const matchSearch = search.trim()
         ? item.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -26,6 +26,19 @@ export default function MenuClient({ items, categories }: MenuClientProps) {
         : true;
       return matchCat && matchSearch;
     });
+
+    // Jika semua kategori ditampilkan & tidak ada pencarian, urutkan per kategori lalu per order_number menu
+    if (!selectedCategory && !search.trim()) {
+      return [...base].sort((a, b) => {
+        const catOrderA = (a.category as { order_number?: number } | null)?.order_number ?? 999;
+        const catOrderB = (b.category as { order_number?: number } | null)?.order_number ?? 999;
+        if (catOrderA !== catOrderB) return catOrderA - catOrderB;
+        return (a.order_number ?? 999) - (b.order_number ?? 999);
+      });
+    }
+
+    // Jika filter kategori aktif atau ada pencarian, cukup urutkan per order_number menu
+    return [...base].sort((a, b) => (a.order_number ?? 999) - (b.order_number ?? 999));
   }, [items, search, selectedCategory]);
 
   return (

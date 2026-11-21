@@ -239,7 +239,7 @@ export default function AdminPromosPage() {
       const isUpcoming = promo.start_date && promo.start_date > todayStr;
       const isActiveNow = (!promo.start_date || promo.start_date <= todayStr) && (!promo.end_date || promo.end_date >= todayStr);
 
-      if (filterPeriod === "active_now" && (!isActiveNow || isExpired)) return false;
+      if (filterPeriod === "active_now" && !isActiveNow) return false;
       if (filterPeriod === "upcoming" && !isUpcoming) return false;
       if (filterPeriod === "expired" && !isExpired) return false;
 
