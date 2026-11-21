@@ -15,6 +15,7 @@ import { MenuItem, Category } from "@/types";
 import {
   Plus, Edit2, Trash2, X, Star, ChefHat,
   ShoppingBag, CheckCircle, XCircle, Search, Eye,
+  Filter, RotateCcw, ArrowUpDown, ImageIcon,
 } from "lucide-react";
 
 const emptyForm = {
@@ -27,7 +28,12 @@ export default function AdminMenuPage() {
   const [items, setItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchColumn, setSearchColumn] = useState<"all" | "name" | "category" | "description" | "price">("all");
+  const [filterCategory, setFilterCategory] = useState<string>("all");
+  const [filterAvailability, setFilterAvailability] = useState<"all" | "available" | "unavailable">("all");
+  const [filterBadge, setFilterBadge] = useState<"all" | "best_seller" | "chef_choice" | "supports_jumbo" | "has_image" | "no_image">("all");
+  const [sortBy, setSortBy] = useState<"order" | "name_asc" | "name_desc" | "price_asc" | "price_desc">("order");
   const [showForm, setShowForm] = useState(false);
   const [editItem, setEditItem] = useState<MenuItem | null>(null);
   const [form, setForm] = useState(emptyForm);
@@ -145,32 +151,231 @@ export default function AdminMenuPage() {
     }
   };
 
-  const filtered = items.filter((i) =>
-    i.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const resetFilters = () => {
+    setSearchQuery("");
+    setSearchColumn("all");
+    setFilterCategory("all");
+    setFilterAvailability("all");
+    setFilterBadge("all");
+    setSortBy("order");
+  };
+
+  const hasActiveFilters =
+    searchQuery.trim() !== "" ||
+    searchColumn !== "all" ||
+    filterCategory !== "all" ||
+    filterAvailability !== "all" ||
+    filterBadge !== "all" ||
+    sortBy !== "order";
+
+  const filtered = items
+    .filter((item) => {
+      // 1. Filter Pencarian Kolom
+      const q = searchQuery.trim().toLowerCase();
+      if (q) {
+        const categoryName = (item.category as { name?: string } | null)?.name?.toLowerCase() || "";
+        const itemName = item.name.toLowerCase();
+        const itemDesc = (item.description || "").toLowerCase();
+        const itemPrice = item.price.toString();
+
+        if (searchColumn === "name" && !itemName.includes(q)) return false;
+        if (searchColumn === "category" && !categoryName.includes(q)) return false;
+        if (searchColumn === "description" && !itemDesc.includes(q)) return false;
+        if (searchColumn === "price" && !itemPrice.includes(q)) return false;
+        if (searchColumn === "all") {
+          const matchAny =
+            itemName.includes(q) ||
+            categoryName.includes(q) ||
+            itemDesc.includes(q) ||
+            itemPrice.includes(q);
+          if (!matchAny) return false;
+        }
+      }
+
+      // 2. Filter Kategori
+      if (filterCategory !== "all" && item.category_id !== filterCategory) {
+        return false;
+      }
+
+      // 3. Filter Status Ketersediaan
+      if (filterAvailability === "available" && !item.is_available) return false;
+      if (filterAvailability === "unavailable" && item.is_available) return false;
+
+      // 4. Filter Badge & Media
+      if (filterBadge === "best_seller" && !item.is_best_seller) return false;
+      if (filterBadge === "chef_choice" && !item.is_chef_choice) return false;
+      if (filterBadge === "supports_jumbo" && !item.supports_jumbo) return false;
+      if (filterBadge === "has_image" && !item.image_url) return false;
+      if (filterBadge === "no_image" && !!item.image_url) return false;
+
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortBy === "name_asc") return a.name.localeCompare(b.name);
+      if (sortBy === "name_desc") return b.name.localeCompare(a.name);
+      if (sortBy === "price_asc") return a.price - b.price;
+      if (sortBy === "price_desc") return b.price - a.price;
+      return a.order_number - b.order_number;
+    });
 
   return (
     <div className="max-w-4xl mx-auto">
-      {/* Toolbar */}
-      <div className="flex items-center gap-3 mb-5">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <input
-            type="text" value={search} onChange={(e) => setSearch(e.target.value)}
-            placeholder="Cari menu..."
-            className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#e6203b]/30 focus:border-[#e6203b]"
-          />
+      {/* Toolbar & Filter Multi-Kolom */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-5 space-y-3">
+        {/* Baris 1: Pencarian Berdasarkan Kolom Tertentu + Tambah Menu */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+          {/* Kolom yang dipilih untuk dicari */}
+          <div className="relative min-w-[140px] sm:w-44 flex-shrink-0">
+            <select
+              value={searchColumn}
+              onChange={(e) => setSearchColumn(e.target.value as any)}
+              className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#e6203b]/30 focus:border-[#e6203b] cursor-pointer"
+            >
+              <option value="all">🔍 Semua Kolom</option>
+              <option value="name">Nama Menu</option>
+              <option value="category">Kategori</option>
+              <option value="description">Deskripsi</option>
+              <option value="price">Harga (Angka)</option>
+            </select>
+          </div>
+
+          {/* Input Pencarian */}
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={
+                searchColumn === "all"
+                  ? "Cari menu, kategori, deskripsi, harga..."
+                  : searchColumn === "name"
+                  ? "Cari nama menu..."
+                  : searchColumn === "category"
+                  ? "Cari nama kategori..."
+                  : searchColumn === "description"
+                  ? "Cari kata kunci deskripsi..."
+                  : "Cari nominal harga..."
+              }
+              className="w-full pl-9 pr-8 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#e6203b]/30 focus:border-[#e6203b]"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded-lg"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+
+          <Button onClick={openCreate} size="sm" className="flex-shrink-0 h-[42px] px-4">
+            <Plus className="h-4 w-4" /> Tambah Menu
+          </Button>
         </div>
-        <Button onClick={openCreate} size="sm">
-          <Plus className="h-4 w-4" /> Tambah Menu
-        </Button>
+
+        {/* Baris 2: Dropdown Filter Spesifik */}
+        <div className="pt-2 border-t border-gray-100 flex flex-wrap items-center gap-2">
+          <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 mr-1">
+            <Filter className="h-3.5 w-3.5" />
+            <span>Filter:</span>
+          </div>
+
+          {/* Filter Kategori */}
+          <select
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+            className="px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-xs font-medium text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#e6203b]"
+          >
+            <option value="all">Semua Kategori</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+
+          {/* Filter Status Ketersediaan */}
+          <select
+            value={filterAvailability}
+            onChange={(e) => setFilterAvailability(e.target.value as any)}
+            className="px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-xs font-medium text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#e6203b]"
+          >
+            <option value="all">Semua Ketersediaan</option>
+            <option value="available">🟢 Tersedia</option>
+            <option value="unavailable">🔴 Tidak Tersedia (Habis)</option>
+          </select>
+
+          {/* Filter Badge & Media */}
+          <select
+            value={filterBadge}
+            onChange={(e) => setFilterBadge(e.target.value as any)}
+            className="px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-xs font-medium text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#e6203b]"
+          >
+            <option value="all">Semua Badge & Foto</option>
+            <option value="best_seller">⭐ Best Seller</option>
+            <option value="chef_choice">👨‍🍳 Chef&apos;s Choice</option>
+            <option value="supports_jumbo">🍜 Bisa Jumbo</option>
+            <option value="has_image">🖼️ Memiliki Foto</option>
+            <option value="no_image">⚠️ Belum Ada Foto</option>
+          </select>
+
+          {/* Urutan */}
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as any)}
+            className="px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-xs font-medium text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#e6203b]"
+          >
+            <option value="order">Urutan Menu (Default)</option>
+            <option value="name_asc">Nama (A - Z)</option>
+            <option value="name_desc">Nama (Z - A)</option>
+            <option value="price_asc">Harga Terendah</option>
+            <option value="price_desc">Harga Tertinggi</option>
+          </select>
+
+          {/* Tombol Reset Filter */}
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={resetFilters}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-[#e6203b] border border-red-200 rounded-xl text-xs font-semibold transition-colors ml-auto"
+            >
+              <RotateCcw className="h-3 w-3" /> Reset Filter
+            </button>
+          )}
+        </div>
+
+        {/* Informasi Ringkasan */}
+        <div className="flex items-center justify-between text-xs text-gray-500 pt-1">
+          <p>
+            Menampilkan <span className="font-bold text-gray-900">{filtered.length}</span> dari{" "}
+            <span className="font-bold text-gray-900">{items.length}</span> menu
+          </p>
+          {hasActiveFilters && (
+            <span className="text-[11px] bg-amber-50 text-amber-700 px-2 py-0.5 rounded-md font-medium border border-amber-200">
+              Filter / Pencarian Aktif
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Table */}
       {loading ? (
         <LoadingSpinner />
       ) : filtered.length === 0 ? (
-        <EmptyState title="Belum ada menu" description="Tambah menu pertama kamu!" />
+        hasActiveFilters ? (
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 text-center space-y-3">
+            <p className="text-gray-600 font-medium">
+              Tidak ada menu yang cocok dengan kriteria filter atau pencarian Anda.
+            </p>
+            <Button variant="secondary" size="sm" onClick={resetFilters} className="mx-auto">
+              <RotateCcw className="h-3.5 w-3.5" /> Reset Semua Filter
+            </Button>
+          </div>
+        ) : (
+          <EmptyState title="Belum ada menu" description="Tambah menu pertama kamu!" />
+        )
       ) : (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">

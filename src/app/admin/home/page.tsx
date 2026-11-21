@@ -7,8 +7,10 @@ import { uploadBannerImage, uploadLogoImage } from "@/app/actions/upload";
 import { Button } from "@/components/ui/Button";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
+import { parseWhatsAppLink, buildWhatsAppUrl } from "@/lib/whatsapp";
 import { RestaurantSettings } from "@/types";
-import { Save, UtensilsCrossed } from "lucide-react";
+import { Save, UtensilsCrossed, ExternalLink, MessageSquare } from "lucide-react";
 
 export default function AdminHomePage() {
   const [settings, setSettings] = useState<RestaurantSettings | null>(null);
@@ -18,6 +20,8 @@ export default function AdminHomePage() {
   const [bannerPreview, setBannerPreview] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [waPhone, setWaPhone] = useState("");
+  const [waMessage, setWaMessage] = useState("");
   const [success, setSuccess] = useState(false);
 
   const supabase = createClient();
@@ -27,6 +31,14 @@ export default function AdminHomePage() {
       setSettings(data);
       setBannerPreview(data?.banner_image_url ?? null);
       setLogoPreview(data?.logo_url ?? null);
+      if (data?.whatsapp_link) {
+        const parsed = parseWhatsAppLink(data.whatsapp_link);
+        setWaPhone(parsed.phone);
+        setWaMessage(parsed.message || "Halo Syalala! Saya ingin memesan menu / tanya info.");
+      } else {
+        setWaPhone("6281325350008");
+        setWaMessage("Halo Syalala! Saya ingin memesan menu / tanya info.");
+      }
       setLoading(false);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -56,6 +68,8 @@ export default function AdminHomePage() {
         logoUrl = null;
       }
 
+      const finalWaLink = buildWhatsAppUrl(waPhone, waMessage);
+
       await updateRestaurantSettings(settings.id, {
         name: settings.name,
         tagline: settings.tagline,
@@ -64,7 +78,7 @@ export default function AdminHomePage() {
         jumbo_size_upgrade_fee: settings.jumbo_size_upgrade_fee,
         tax_percentage: settings.tax_percentage,
         tax_status: settings.tax_status,
-        whatsapp_link: settings.whatsapp_link,
+        whatsapp_link: finalWaLink || null,
         google_maps_link: settings.google_maps_link,
         instagram_link: settings.instagram_link,
         tiktok_link: settings.tiktok_link,
@@ -167,10 +181,78 @@ export default function AdminHomePage() {
           </div>
         </div>
 
-        {/* Links */}
+        {/* WhatsApp & Pesan Otomatis */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4">
-          <h3 className="font-bold text-gray-900">Link Sosial & Kontak</h3>
-          {field("Link WhatsApp", "whatsapp_link", "url", "https://wa.me/628xxx")}
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-green-500/10 text-green-600 flex items-center justify-center flex-shrink-0">
+              <WhatsAppIcon className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="font-bold text-gray-900">WhatsApp & Pesan Otomatis</h3>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Atur nomor kontak restoran dan format pesan yang otomatis muncul saat pelanggan klik tombol WhatsApp.
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              Nomor WhatsApp Restoran
+            </label>
+            <input
+              type="text"
+              value={waPhone}
+              onChange={(e) => setWaPhone(e.target.value)}
+              placeholder="Contoh: 081325350008 atau 6281325350008"
+              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500"
+            />
+            <p className="text-[11px] text-gray-400 mt-1">
+              Bisa diawali 08... atau 628... (akan otomatis disesuaikan ke format internasional WhatsApp).
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center justify-between">
+              <span>Isi Pesan Otomatis</span>
+              <span className="text-xs font-normal text-gray-400">
+                {waMessage.length} karakter
+              </span>
+            </label>
+            <textarea
+              rows={3}
+              value={waMessage}
+              onChange={(e) => setWaMessage(e.target.value)}
+              placeholder="Contoh: Halo Syalala! Saya ingin memesan menu / tanya info promo hari ini."
+              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500 resize-none"
+            />
+          </div>
+
+          {/* Live Preview Box */}
+          <div className="p-3.5 bg-gray-50 rounded-xl border border-gray-200/80 space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-semibold text-gray-600 flex items-center gap-1.5">
+                <MessageSquare className="h-3.5 w-3.5 text-green-600" /> Preview Tampilan Chat Pelanggan:
+              </span>
+              {buildWhatsAppUrl(waPhone, waMessage) && (
+                <a
+                  href={buildWhatsAppUrl(waPhone, waMessage)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-[11px] font-bold text-green-700 hover:text-green-800 bg-green-100 hover:bg-green-200 px-2 py-0.5 rounded-lg transition-colors"
+                >
+                  <ExternalLink className="h-3 w-3" /> Uji Coba Chat
+                </a>
+              )}
+            </div>
+            <div className="bg-white p-2.5 rounded-lg border border-gray-200 text-xs text-gray-700 font-sans italic break-words">
+              &ldquo;{waMessage.trim() || "Belum ada pesan otomatis (hanya membuka chat kosong)"}&rdquo;
+            </div>
+          </div>
+        </div>
+
+        {/* Links Medsos Lainnya */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4">
+          <h3 className="font-bold text-gray-900">Link Sosial Media & Lokasi</h3>
           {field("Link Google Maps (Lokasi)", "google_maps_link", "url", "https://maps.google.com/...")}
           {field("Link Instagram", "instagram_link", "url", "https://instagram.com/syalala")}
           {field("Link TikTok", "tiktok_link", "url", "https://www.tiktok.com/@syalala")}

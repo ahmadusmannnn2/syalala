@@ -10,7 +10,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { Promotion } from "@/types";
-import { Plus, Edit2, Trash2, X, Gift, Image as ImageIcon, Clock, CheckCircle2 } from "lucide-react";
+import { Plus, Edit2, Trash2, X, Gift, Image as ImageIcon, Clock, CheckCircle2, Search, Filter, RotateCcw } from "lucide-react";
 
 const DAYS = [
   { value: "monday", label: "Senin" },
@@ -41,6 +41,12 @@ const emptyForm = {
 export default function AdminPromosPage() {
   const [items, setItems] = useState<Promotion[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchColumn, setSearchColumn] = useState<"all" | "name" | "reward" | "description" | "min_transaction">("all");
+  const [filterStatus, setFilterStatus] = useState<"all" | "active" | "inactive">("all");
+  const [filterPeriod, setFilterPeriod] = useState<"all" | "active_now" | "upcoming" | "expired">("all");
+  const [filterImage, setFilterImage] = useState<"all" | "has_image" | "no_image">("all");
+  const [sortBy, setSortBy] = useState<"created_desc" | "name_asc" | "name_desc" | "min_trans_asc" | "min_trans_desc">("created_desc");
   const [showForm, setShowForm] = useState(false);
   const [editItem, setEditItem] = useState<Promotion | null>(null);
   const [form, setForm] = useState(emptyForm);
@@ -184,21 +190,228 @@ export default function AdminPromosPage() {
     }
   };
 
+  const resetFilters = () => {
+    setSearchQuery("");
+    setSearchColumn("all");
+    setFilterStatus("all");
+    setFilterPeriod("all");
+    setFilterImage("all");
+    setSortBy("created_desc");
+  };
+
+  const hasActiveFilters =
+    searchQuery.trim() !== "" ||
+    searchColumn !== "all" ||
+    filterStatus !== "all" ||
+    filterPeriod !== "all" ||
+    filterImage !== "all" ||
+    sortBy !== "created_desc";
+
+  const todayStr = new Date().toISOString().split("T")[0];
+
+  const filtered = items
+    .filter((promo) => {
+      // 1. Filter Pencarian Kolom
+      const q = searchQuery.trim().toLowerCase();
+      if (q) {
+        const pName = promo.name.toLowerCase();
+        const pReward = (promo.reward || "").toLowerCase();
+        const pDesc = (promo.description || "").toLowerCase();
+        const pMin = promo.min_transaction ? promo.min_transaction.toString() : "";
+
+        if (searchColumn === "name" && !pName.includes(q)) return false;
+        if (searchColumn === "reward" && !pReward.includes(q)) return false;
+        if (searchColumn === "description" && !pDesc.includes(q)) return false;
+        if (searchColumn === "min_transaction" && !pMin.includes(q)) return false;
+        if (searchColumn === "all") {
+          const matchAny =
+            pName.includes(q) || pReward.includes(q) || pDesc.includes(q) || pMin.includes(q);
+          if (!matchAny) return false;
+        }
+      }
+
+      // 2. Filter Status
+      if (filterStatus === "active" && !promo.is_active) return false;
+      if (filterStatus === "inactive" && promo.is_active) return false;
+
+      // 3. Filter Periode
+      const isExpired = promo.end_date && promo.end_date < todayStr;
+      const isUpcoming = promo.start_date && promo.start_date > todayStr;
+      const isActiveNow = (!promo.start_date || promo.start_date <= todayStr) && (!promo.end_date || promo.end_date >= todayStr);
+
+      if (filterPeriod === "active_now" && (!isActiveNow || isExpired)) return false;
+      if (filterPeriod === "upcoming" && !isUpcoming) return false;
+      if (filterPeriod === "expired" && !isExpired) return false;
+
+      // 4. Filter Foto
+      if (filterImage === "has_image" && !promo.image_url) return false;
+      if (filterImage === "no_image" && !!promo.image_url) return false;
+
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortBy === "name_asc") return a.name.localeCompare(b.name);
+      if (sortBy === "name_desc") return b.name.localeCompare(a.name);
+      if (sortBy === "min_trans_asc") return (a.min_transaction || 0) - (b.min_transaction || 0);
+      if (sortBy === "min_trans_desc") return (b.min_transaction || 0) - (a.min_transaction || 0);
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+
   return (
     <div className="max-w-3xl mx-auto">
-      <div className="flex justify-end mb-5">
-        <Button onClick={openCreate} size="sm">
-          <Plus className="h-4 w-4" /> Tambah Promo
-        </Button>
+      {/* Toolbar & Filter Multi-Kolom */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-5 space-y-3">
+        {/* Baris 1: Pencarian Berdasarkan Kolom Tertentu + Tambah Promo */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+          {/* Kolom yang dipilih untuk dicari */}
+          <div className="relative min-w-[140px] sm:w-44 flex-shrink-0">
+            <select
+              value={searchColumn}
+              onChange={(e) => setSearchColumn(e.target.value as any)}
+              className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#e6203b]/30 focus:border-[#e6203b] cursor-pointer"
+            >
+              <option value="all">🔍 Semua Kolom</option>
+              <option value="name">Nama Promo</option>
+              <option value="reward">Hadiah / Reward</option>
+              <option value="description">Deskripsi</option>
+              <option value="min_transaction">Min. Transaksi</option>
+            </select>
+          </div>
+
+          {/* Input Pencarian */}
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={
+                searchColumn === "all"
+                  ? "Cari nama promo, hadiah, deskripsi, nominal..."
+                  : searchColumn === "name"
+                  ? "Cari nama promo..."
+                  : searchColumn === "reward"
+                  ? "Cari hadiah atau reward..."
+                  : searchColumn === "description"
+                  ? "Cari kata kunci deskripsi..."
+                  : "Cari nominal min transaksi..."
+              }
+              className="w-full pl-9 pr-8 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#e6203b]/30 focus:border-[#e6203b]"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded-lg"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+
+          <Button onClick={openCreate} size="sm" className="flex-shrink-0 h-[42px] px-4">
+            <Plus className="h-4 w-4" /> Tambah Promo
+          </Button>
+        </div>
+
+        {/* Baris 2: Dropdown Filter Spesifik */}
+        <div className="pt-2 border-t border-gray-100 flex flex-wrap items-center gap-2">
+          <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 mr-1">
+            <Filter className="h-3.5 w-3.5" />
+            <span>Filter:</span>
+          </div>
+
+          {/* Filter Status */}
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value as any)}
+            className="px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-xs font-medium text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#e6203b]"
+          >
+            <option value="all">Semua Status</option>
+            <option value="active">🟢 Aktif</option>
+            <option value="inactive">🔴 Nonaktif</option>
+          </select>
+
+          {/* Filter Periode */}
+          <select
+            value={filterPeriod}
+            onChange={(e) => setFilterPeriod(e.target.value as any)}
+            className="px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-xs font-medium text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#e6203b]"
+          >
+            <option value="all">Semua Periode</option>
+            <option value="active_now">⚡ Sedang Berjalan</option>
+            <option value="upcoming">⏳ Akan Datang</option>
+            <option value="expired">⌛ Sudah Berakhir</option>
+          </select>
+
+          {/* Filter Media Gambar */}
+          <select
+            value={filterImage}
+            onChange={(e) => setFilterImage(e.target.value as any)}
+            className="px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-xs font-medium text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#e6203b]"
+          >
+            <option value="all">Semua Media</option>
+            <option value="has_image">🖼️ Memiliki Banner</option>
+            <option value="no_image">⚠️ Tanpa Banner</option>
+          </select>
+
+          {/* Urutan */}
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as any)}
+            className="px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-xs font-medium text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#e6203b]"
+          >
+            <option value="created_desc">Promo Terbaru (Default)</option>
+            <option value="name_asc">Nama (A - Z)</option>
+            <option value="name_desc">Nama (Z - A)</option>
+            <option value="min_trans_asc">Min. Belanja Terendah</option>
+            <option value="min_trans_desc">Min. Belanja Tertinggi</option>
+          </select>
+
+          {/* Tombol Reset Filter */}
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={resetFilters}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-[#e6203b] border border-red-200 rounded-xl text-xs font-semibold transition-colors ml-auto"
+            >
+              <RotateCcw className="h-3 w-3" /> Reset Filter
+            </button>
+          )}
+        </div>
+
+        {/* Informasi Ringkasan */}
+        <div className="flex items-center justify-between text-xs text-gray-500 pt-1">
+          <p>
+            Menampilkan <span className="font-bold text-gray-900">{filtered.length}</span> dari{" "}
+            <span className="font-bold text-gray-900">{items.length}</span> promo
+          </p>
+          {hasActiveFilters && (
+            <span className="text-[11px] bg-amber-50 text-amber-700 px-2 py-0.5 rounded-md font-medium border border-amber-200">
+              Filter / Pencarian Aktif
+            </span>
+          )}
+        </div>
       </div>
 
       {loading ? (
         <LoadingSpinner />
-      ) : items.length === 0 ? (
-        <EmptyState title="Belum ada promo" icon={<Gift className="h-10 w-10 text-gray-300" />} />
+      ) : filtered.length === 0 ? (
+        hasActiveFilters ? (
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 text-center space-y-3">
+            <p className="text-gray-600 font-medium">
+              Tidak ada promo yang cocok dengan kriteria filter atau pencarian Anda.
+            </p>
+            <Button variant="secondary" size="sm" onClick={resetFilters} className="mx-auto">
+              <RotateCcw className="h-3.5 w-3.5" /> Reset Semua Filter
+            </Button>
+          </div>
+        ) : (
+          <EmptyState title="Belum ada promo" icon={<Gift className="h-10 w-10 text-gray-300" />} />
+        )
       ) : (
         <div className="space-y-3">
-          {items.map((promo) => (
+          {filtered.map((promo) => (
             <div
               key={promo.id}
               className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex items-start justify-between gap-4"

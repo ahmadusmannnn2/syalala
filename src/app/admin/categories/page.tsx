@@ -8,13 +8,17 @@ import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { Category } from "@/types";
-import { Plus, Edit2, Trash2, X, CheckCircle, XCircle } from "lucide-react";
+import { Plus, Edit2, Trash2, X, CheckCircle, XCircle, Search, Filter, RotateCcw } from "lucide-react";
 
 const emptyForm = { name: "", slug: "", description: "", order_number: 0, is_active: true };
 
 export default function AdminCategoriesPage() {
   const [items, setItems] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchColumn, setSearchColumn] = useState<"all" | "name" | "slug" | "description">("all");
+  const [filterStatus, setFilterStatus] = useState<"all" | "active" | "inactive">("all");
+  const [sortBy, setSortBy] = useState<"order" | "name_asc" | "name_desc">("order");
   const [showForm, setShowForm] = useState(false);
   const [editItem, setEditItem] = useState<Category | null>(null);
   const [form, setForm] = useState(emptyForm);
@@ -80,18 +84,173 @@ export default function AdminCategoriesPage() {
     }
   };
 
+  const resetFilters = () => {
+    setSearchQuery("");
+    setSearchColumn("all");
+    setFilterStatus("all");
+    setSortBy("order");
+  };
+
+  const hasActiveFilters =
+    searchQuery.trim() !== "" ||
+    searchColumn !== "all" ||
+    filterStatus !== "all" ||
+    sortBy !== "order";
+
+  const filtered = items
+    .filter((cat) => {
+      // 1. Filter Pencarian Kolom
+      const q = searchQuery.trim().toLowerCase();
+      if (q) {
+        const catName = cat.name.toLowerCase();
+        const catSlug = cat.slug.toLowerCase();
+        const catDesc = (cat.description || "").toLowerCase();
+
+        if (searchColumn === "name" && !catName.includes(q)) return false;
+        if (searchColumn === "slug" && !catSlug.includes(q)) return false;
+        if (searchColumn === "description" && !catDesc.includes(q)) return false;
+        if (searchColumn === "all") {
+          const matchAny = catName.includes(q) || catSlug.includes(q) || catDesc.includes(q);
+          if (!matchAny) return false;
+        }
+      }
+
+      // 2. Filter Status
+      if (filterStatus === "active" && !cat.is_active) return false;
+      if (filterStatus === "inactive" && cat.is_active) return false;
+
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortBy === "name_asc") return a.name.localeCompare(b.name);
+      if (sortBy === "name_desc") return b.name.localeCompare(a.name);
+      return a.order_number - b.order_number;
+    });
+
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="flex justify-end mb-5">
-        <Button onClick={openCreate} size="sm">
-          <Plus className="h-4 w-4" /> Tambah Kategori
-        </Button>
+    <div className="max-w-3xl mx-auto">
+      {/* Toolbar & Filter Multi-Kolom */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-5 space-y-3">
+        {/* Baris 1: Pencarian Berdasarkan Kolom Tertentu + Tambah Kategori */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+          {/* Kolom yang dipilih untuk dicari */}
+          <div className="relative min-w-[140px] sm:w-44 flex-shrink-0">
+            <select
+              value={searchColumn}
+              onChange={(e) => setSearchColumn(e.target.value as any)}
+              className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#e6203b]/30 focus:border-[#e6203b] cursor-pointer"
+            >
+              <option value="all">🔍 Semua Kolom</option>
+              <option value="name">Nama Kategori</option>
+              <option value="slug">Slug</option>
+              <option value="description">Deskripsi</option>
+            </select>
+          </div>
+
+          {/* Input Pencarian */}
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={
+                searchColumn === "all"
+                  ? "Cari nama, slug, deskripsi kategori..."
+                  : searchColumn === "name"
+                  ? "Cari nama kategori..."
+                  : searchColumn === "slug"
+                  ? "Cari slug kategori..."
+                  : "Cari kata kunci deskripsi..."
+              }
+              className="w-full pl-9 pr-8 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#e6203b]/30 focus:border-[#e6203b]"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded-lg"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+
+          <Button onClick={openCreate} size="sm" className="flex-shrink-0 h-[42px] px-4">
+            <Plus className="h-4 w-4" /> Tambah Kategori
+          </Button>
+        </div>
+
+        {/* Baris 2: Dropdown Filter Spesifik */}
+        <div className="pt-2 border-t border-gray-100 flex flex-wrap items-center gap-2">
+          <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 mr-1">
+            <Filter className="h-3.5 w-3.5" />
+            <span>Filter:</span>
+          </div>
+
+          {/* Filter Status */}
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value as any)}
+            className="px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-xs font-medium text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#e6203b]"
+          >
+            <option value="all">Semua Status</option>
+            <option value="active">🟢 Aktif</option>
+            <option value="inactive">🔴 Nonaktif</option>
+          </select>
+
+          {/* Urutan */}
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as any)}
+            className="px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-xs font-medium text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#e6203b]"
+          >
+            <option value="order">Urutan Tampilan (Default)</option>
+            <option value="name_asc">Nama (A - Z)</option>
+            <option value="name_desc">Nama (Z - A)</option>
+          </select>
+
+          {/* Tombol Reset Filter */}
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={resetFilters}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-[#e6203b] border border-red-200 rounded-xl text-xs font-semibold transition-colors ml-auto"
+            >
+              <RotateCcw className="h-3 w-3" /> Reset Filter
+            </button>
+          )}
+        </div>
+
+        {/* Informasi Ringkasan */}
+        <div className="flex items-center justify-between text-xs text-gray-500 pt-1">
+          <p>
+            Menampilkan <span className="font-bold text-gray-900">{filtered.length}</span> dari{" "}
+            <span className="font-bold text-gray-900">{items.length}</span> kategori
+          </p>
+          {hasActiveFilters && (
+            <span className="text-[11px] bg-amber-50 text-amber-700 px-2 py-0.5 rounded-md font-medium border border-amber-200">
+              Filter / Pencarian Aktif
+            </span>
+          )}
+        </div>
       </div>
 
       {loading ? (
         <LoadingSpinner />
-      ) : items.length === 0 ? (
-        <EmptyState title="Belum ada kategori" description="Tambah kategori menu terlebih dahulu." />
+      ) : filtered.length === 0 ? (
+        hasActiveFilters ? (
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 text-center space-y-3">
+            <p className="text-gray-600 font-medium">
+              Tidak ada kategori yang cocok dengan kriteria filter atau pencarian Anda.
+            </p>
+            <Button variant="secondary" size="sm" onClick={resetFilters} className="mx-auto">
+              <RotateCcw className="h-3.5 w-3.5" /> Reset Semua Filter
+            </Button>
+          </div>
+        ) : (
+          <EmptyState title="Belum ada kategori" description="Tambah kategori menu terlebih dahulu." />
+        )
       ) : (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           <table className="w-full text-sm">
@@ -105,7 +264,7 @@ export default function AdminCategoriesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {items.map((cat) => (
+              {filtered.map((cat) => (
                 <tr key={cat.id} className="hover:bg-gray-50/50">
                   <td className="px-4 py-3">
                     <div

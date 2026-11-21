@@ -2,6 +2,7 @@ import { UtensilsCrossed, MapPin } from "lucide-react";
 import { InstagramIcon } from "@/components/ui/InstagramIcon";
 import { TikTokIcon } from "@/components/ui/TikTokIcon";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
+import { parseWhatsAppLink, buildWhatsAppUrl } from "@/lib/whatsapp";
 
 interface FooterProps {
   logoUrl?: string | null;
@@ -22,8 +23,12 @@ export function Footer({
   tiktokLink,
   mapsLink,
 }: FooterProps) {
-  // Fallback links agar ikon di footer selalu tampil
-  const wa = waLink || "https://wa.me/628123456789";
+  // Fallback links agar ikon di footer selalu tampil & punya pesan otomatis
+  const parsedWa = parseWhatsAppLink(waLink || "6281325350008");
+  const wa = buildWhatsAppUrl(
+    parsedWa.phone || "6281325350008",
+    parsedWa.message || "Halo Syalala! Saya ingin memesan menu / tanya info."
+  );
   const ig = igLink || "https://instagram.com/syalalamiesosis";
   const tiktok = tiktokLink || "https://www.tiktok.com/@syalalamiesosis";
   const maps = mapsLink || "https://maps.google.com";

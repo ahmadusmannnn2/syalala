@@ -9,6 +9,7 @@ import {
 import { InstagramIcon } from "@/components/ui/InstagramIcon";
 import { TikTokIcon } from "@/components/ui/TikTokIcon";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
+import { parseWhatsAppLink, buildWhatsAppUrl } from "@/lib/whatsapp";
 import { RestaurantSettings } from "@/types";
 
 interface HeroSectionProps {
@@ -26,7 +27,11 @@ export function HeroSection({ settings }: HeroSectionProps) {
   const displayHeroText = isNikmatiText(heroText) ? null : heroText;
 
   // Fallback link medsos
-  const waLink = settings?.whatsapp_link || "https://wa.me/628123456789";
+  const parsedWa = parseWhatsAppLink(settings?.whatsapp_link || "6281325350008");
+  const waLink = buildWhatsAppUrl(
+    parsedWa.phone || "6281325350008",
+    parsedWa.message || "Halo Syalala! Saya ingin memesan menu / tanya info."
+  );
   const mapsLink = settings?.google_maps_link || "https://maps.google.com";
   const igLink = settings?.instagram_link || "https://instagram.com/syalalamiesosis";
   const tiktokLink = settings?.tiktok_link || "https://www.tiktok.com/@syalalamiesosis";
