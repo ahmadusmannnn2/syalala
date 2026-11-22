@@ -9,13 +9,22 @@ export default async function CustomerLayout({
   children: React.ReactNode;
 }) {
   const supabase = await createClient();
-  const [{ data: settings }, footerConfig] = await Promise.all([
-    supabase
-      .from("restaurant_settings")
-      .select("logo_url, name, tagline, whatsapp_link, instagram_link, tiktok_link, google_maps_link")
-      .single(),
-    getFooterConfig(),
-  ]);
+  let settings = null;
+  let footerConfig = null;
+
+  try {
+    const [settingsRes, footer] = await Promise.all([
+      supabase
+        .from("restaurant_settings")
+        .select("logo_url, name, tagline, whatsapp_link, instagram_link, tiktok_link, google_maps_link")
+        .maybeSingle(),
+      getFooterConfig(),
+    ]);
+    settings = settingsRes?.data ?? null;
+    footerConfig = footer;
+  } catch (err) {
+    console.error("Error in CustomerLayout:", err);
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">

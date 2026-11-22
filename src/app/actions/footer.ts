@@ -1,5 +1,6 @@
 "use server";
 
+import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 
@@ -32,24 +33,28 @@ const DEFAULT_FOOTER_CONFIG: FooterConfig = {
 };
 
 export async function getFooterConfig(): Promise<FooterConfig> {
-  const supabase = await createAdminClient();
+  try {
+    const supabase = await createClient();
 
-  const { data } = await supabase
-    .from("home_buttons")
-    .select("url")
-    .eq("label", "footer_config")
-    .maybeSingle();
+    const { data, error } = await supabase
+      .from("home_buttons")
+      .select("url")
+      .eq("label", "footer_config")
+      .maybeSingle();
 
-  if (data?.url) {
-    try {
-      const parsed = JSON.parse(data.url);
-      return {
-        ...DEFAULT_FOOTER_CONFIG,
-        ...parsed,
-      };
-    } catch {
-      // Fallback
+    if (!error && data?.url) {
+      try {
+        const parsed = JSON.parse(data.url);
+        return {
+          ...DEFAULT_FOOTER_CONFIG,
+          ...parsed,
+        };
+      } catch {
+        // Fallback jika json rusak
+      }
     }
+  } catch (err) {
+    console.error("Gagal memuat footer config:", err);
   }
 
   return DEFAULT_FOOTER_CONFIG;

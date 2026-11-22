@@ -10,7 +10,7 @@ export default async function HomePage() {
   const supabase = await createClient();
 
   const [settingsRes, promosRes, menuRes] = await Promise.all([
-    supabase.from("restaurant_settings").select("*").single(),
+    supabase.from("restaurant_settings").select("*").maybeSingle(),
     supabase
       .from("promotions")
       .select("*")

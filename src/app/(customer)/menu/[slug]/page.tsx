@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .from("menu_items")
     .select("name, description")
     .eq("slug", slug)
-    .single();
+    .maybeSingle();
 
   if (!data) return { title: "Menu tidak ditemukan" };
 
@@ -48,11 +48,11 @@ export default async function MenuDetailPage({ params }: Props) {
       .from("menu_items")
       .select("*, category:categories(id, name, slug, description, order_number, is_active, created_at, updated_at)")
       .eq("slug", slug)
-      .single(),
+      .maybeSingle(),
     supabase
       .from("restaurant_settings")
       .select("jumbo_size_upgrade_fee, tax_status")
-      .single(),
+      .maybeSingle(),
   ]);
 
   if (!itemRes.data) notFound();
